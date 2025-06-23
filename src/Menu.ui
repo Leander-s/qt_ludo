@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Menu</class>
+ <widget class="QWidget" name="Menu">
+ <property name="styleSheet">
+ <string notr="true">background-color: #222222;</string>
+ </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="alignment">
+       <set>Qt::AlignCenter</set>
+     </property>
+    <item>
+      <widget class="QPushButton" name="button">
+     <property name="styleSheet">
+     <string notr="true">
+        color: #dddddd;
+        background-color: #333333;
+     </string>
+     </property>
+      <property name="minimumSize">
+      <size>
+      <width>500</width>
+      <height>150</height>
+      </size>
+      </property>
+      </widget>
+    </item>
+    <item>
+      <widget class="QLabel" name="label">
+     <property name="styleSheet">
+     <string notr="true">
+        color: #dddddd;
+        background-color: #333333;
+     </string>
+     </property>
+      <property name="minimumSize">
+      <size>
+      <width>500</width>
+      <height>150</height>
+      </size>
+      </property>
+      </widget>
+    </item>
+   </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

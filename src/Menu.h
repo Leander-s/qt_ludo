@@ -15,10 +15,12 @@ public:
   Menu(QWidget *parent = nullptr);
 
 private slots:
-  void onButtonClicked();
+    void onStartButtonClicked();
+
+signals:
+    void startGame();
 
 private:
   Ui::Menu ui;
-  int counter;
 };
 } // namespace QtLudo

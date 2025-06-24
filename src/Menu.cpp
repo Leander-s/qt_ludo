@@ -6,14 +6,23 @@ namespace QtLudo{
 Menu::Menu(QWidget *parent) : QWidget(parent) {
     ui.setupUi(this);
 
-    ui.button->setText("Click me");
-    ui.label->setText("Clickcounter: 0");
-    connect(ui.button, &QPushButton::clicked, this, &Menu::onButtonClicked);
-    counter = 0;
+    this->setAttribute(Qt::WA_StyledBackground, true);
+
+    ui.startButton->setText("Start game");
+    ui.quitButton->setText("Quit");
+    ui.startButton->setMinimumWidth(600);
+    ui.startButton->setMinimumHeight(50);
+    ui.quitButton->setMinimumWidth(600);
+    ui.quitButton->setMinimumHeight(50);
+
+    ui.title->setMinimumWidth(600);
+    ui.title->setMinimumHeight(100);
+
+    connect(ui.startButton, &QPushButton::clicked, this, &Menu::onStartButtonClicked);
+    connect(ui.quitButton, &QPushButton::clicked, this, &QApplication::quit);
 }
 
-void Menu::onButtonClicked() {
-    counter++;
-    ui.label->setText(QString("Clickcounter: %1").arg(counter));
+void Menu::onStartButtonClicked() {
 }
+
 }

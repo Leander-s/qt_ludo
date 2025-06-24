@@ -9,11 +9,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(HEADERS
     ./src/Menu.h
+    ./src/MainWindow.h
 )
 
 set(SOURCES
     ./src/main.cpp
     ./src/Menu.cpp
+    ./src/MainWindow.cpp
 )
 
 set(UI

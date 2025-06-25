@@ -1,24 +1,19 @@
 #include "GameWidget.h"
 
-namespace QtLudo {
-GameWidget::GameWidget(QWidget *parent)
-    : QOpenGLWidget(parent), VAO(0), VBO(0), IBO(0), shaderProgram(nullptr) {}
+namespace QtLudo{
+    GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
 
-GameWidget::~GameWidget() {
-    makeCurrent();
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &IBO);
-    glDeleteVertexArrays(1, &VAO);
-    delete shaderProgram;
-    doneCurrent();
+        openglwidget = new GameOpenGLWidget;
+        pausemenu = new PauseMenuWidget;
+        pausemenu->hide();
+
+        layout->addWidget(openglwidget);
+        layout->addWidget(pausemenu);
+
+        connect(openglwidget, &GameOpenGLWidget::pauseGame, pausemenu, &QWidget::show);
+        connect(pausemenu, &PauseMenuWidget::resumeGame, pausemenu, &QWidget::hide);
+        connect(pausemenu, &PauseMenuWidget::quitGame, this, &GameWidget::quitToMenu);
+    }
 }
-
-void GameWidget::initializeGL() { 
-    initializeOpenGLFunctions();
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f); 
-}
-
-void GameWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
-
-void GameWidget::paintGL() { glClear(GL_COLOR_BUFFER_BIT); }
-} // namespace QtLudo

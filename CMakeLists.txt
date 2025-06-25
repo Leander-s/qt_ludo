@@ -7,23 +7,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(HEADERS
-    ./src/Menu.h
-    ./src/MainWindow.h
-)
-
-set(SOURCES
-    ./src/main.cpp
-    ./src/Menu.cpp
-    ./src/MainWindow.cpp
-)
-
-set(UI
-    ./src/Menu.ui
-)
+file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
+file(GLOB UI "${CMAKE_CURRENT_SOURCE_DIR}/src/*.ui")
 
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${UI})
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Core Qt6::Gui)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::OpenGLWidgets Qt6::Widgets Qt6::Core Qt6::Gui)

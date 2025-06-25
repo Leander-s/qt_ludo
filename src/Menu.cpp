@@ -23,6 +23,7 @@ Menu::Menu(QWidget *parent) : QWidget(parent) {
 }
 
 void Menu::onStartButtonClicked() {
+    emit startGame();
 }
 
 }

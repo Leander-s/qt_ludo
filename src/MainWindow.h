@@ -1,3 +1,4 @@
+#include "GameWidget.h"
 #include "Menu.h"
 #include <QMainWindow>
 #include <QStackedWidget>
@@ -11,8 +12,10 @@ public:
 private:
   QStackedWidget *widgetStack;
   Menu *menu;
+  GameWidget *gameWidget;
 
 private slots:
   void startGame();
+  void returnToMenu();
 };
 } // namespace QtLudo

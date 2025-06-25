@@ -1,25 +1,21 @@
+#pragma once
+#include "GameOpenGLWidget.h"
+#include "PauseMenuWidget.h"
 #include <QWidget>
-#include <QtOpenGLWidgets/QOpenGLWidget>
-#include <QtOpenGL/QOpenGLFunctions_3_3_Core>
-#include <QtOpenGL/QOpenGLShaderProgram>
+#include <QVBoxLayout>
 
 namespace QtLudo {
-class GameWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
-    Q_OBJECT
+class GameWidget : public QWidget {
+  Q_OBJECT
 
-    public:
-        explicit GameWidget(QWidget *parent = nullptr);
-        ~GameWidget();
+public:
+  GameWidget(QWidget *parent = nullptr);
 
-    protected:
-        void initializeGL() override;
+private:
+  GameOpenGLWidget *openglwidget;
+  PauseMenuWidget *pausemenu;
 
-        void resizeGL(int w, int h) override;
-
-        void paintGL() override;
-
-    private:
-        GLuint VAO, VBO, IBO;
-        QOpenGLShaderProgram *shaderProgram;
+signals:
+  void quitToMenu();
 };
 } // namespace QtLudo

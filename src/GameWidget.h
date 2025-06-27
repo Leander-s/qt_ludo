@@ -2,7 +2,8 @@
 #include "GameOpenGLWidget.h"
 #include "PauseMenuWidget.h"
 #include <QWidget>
-#include <QVBoxLayout>
+#include <QStackedLayout>
+#include <QSizePolicy>
 
 namespace QtLudo {
 class GameWidget : public QWidget {

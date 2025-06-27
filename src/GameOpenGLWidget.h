@@ -4,6 +4,7 @@
 #include <QtOpenGL/QOpenGLShaderProgram>
 #include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QKeyEvent>
+#include "ModelUtil.h"
 
 namespace QtLudo {
 class GameOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
@@ -28,5 +29,8 @@ signals:
 private:
   GLuint VAO, VBO, IBO;
   QOpenGLShaderProgram *shaderProgram;
+  GameGrid *grid;
+  std::vector<float> vertices;
+  std::vector<int> indices;
 };
 } // namespace QtLudo

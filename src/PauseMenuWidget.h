@@ -1,6 +1,7 @@
 #pragma once
 #include <QPushButton>
 #include <QWidget>
+#include <ui_PauseMenuWidget.h>
 
 namespace QtLudo {
 class PauseMenuWidget : public QWidget {
@@ -9,16 +10,15 @@ class PauseMenuWidget : public QWidget {
 public:
   PauseMenuWidget(QWidget *parent = nullptr);
 
-private:
-  QPushButton resumeButton;
-  QPushButton quitButton;
-
 signals:
   void resumeGameSignal();
   void quitGameSignal();
 
-private slots:
+public slots:
   void resumeGame();
   void quitGame();
+
+private:
+  Ui::PauseMenu ui;
 };
 } // namespace QtLudo

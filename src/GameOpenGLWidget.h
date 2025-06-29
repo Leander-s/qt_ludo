@@ -4,6 +4,7 @@
 #include <QtOpenGL/QOpenGLShaderProgram>
 #include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QKeyEvent>
+#include <iostream>
 #include "ModelUtil.h"
 
 namespace QtLudo {

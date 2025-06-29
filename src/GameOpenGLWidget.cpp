@@ -2,19 +2,20 @@
 
 namespace QtLudo {
 GameObject::GameObject(const GameObject &other) {
-    modelMatrix = other.modelMatrix;
-    model = other.model;
-    VAO = other.VAO;
-    VBO = other.VBO;
-    IBO = other.IBO;
-    ready = other.ready;
+  modelMatrix = other.modelMatrix;
+  model = other.model;
+  VAO = other.VAO;
+  VBO = other.VBO;
+  IBO = other.IBO;
+  ready = other.ready;
 }
 GameObject::GameObject(const Model &newModel) : model(newModel) {
   modelMatrix = QMatrix4x4();
   ready = false;
 }
 
-GameObject::GameObject(const Model &newModel, const QVector3D &position) : model(newModel) {
+GameObject::GameObject(const Model &newModel, const QVector3D &position)
+    : model(newModel) {
   modelMatrix = QMatrix4x4();
   modelMatrix.translate(position);
   ready = false;
@@ -29,15 +30,17 @@ void GameObject::rotate(float angle, const QVector3D &axis) {
 }
 
 GameOpenGLWidget::GameOpenGLWidget(QWidget *parent)
-    : QOpenGLWidget(parent), VAO(0), VBO(0), IBO(0), shaderProgram(nullptr) {
+    : QOpenGLWidget(parent), shaderProgram(nullptr) {
   this->setFocusPolicy(Qt::StrongFocus);
 }
 
 GameOpenGLWidget::~GameOpenGLWidget() {
   makeCurrent();
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &IBO);
-  glDeleteVertexArrays(1, &VAO);
+  for (GameObject gameObject : gameObjects) {
+    glDeleteBuffers(1, &gameObject.VBO);
+    glDeleteBuffers(1, &gameObject.IBO);
+    glDeleteVertexArrays(1, &gameObject.VAO);
+  }
   delete shaderProgram;
   doneCurrent();
 }
@@ -46,14 +49,6 @@ void GameOpenGLWidget::initializeGameObject(GameObject &gameObject) {
   // VAO
   glGenVertexArrays(1, &gameObject.VAO);
   glBindVertexArray(gameObject.VAO);
-
-  // Vertex attributes
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
 
   // VBO
   glGenBuffers(1, &gameObject.VBO);
@@ -69,6 +64,14 @@ void GameOpenGLWidget::initializeGameObject(GameObject &gameObject) {
                gameObject.model.indices.size() * sizeof(int),
                gameObject.model.indices.data(), GL_STATIC_DRAW);
 
+  // Vertex attributes
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+          (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+
   glBindVertexArray(0);
   gameObject.ready = true;
 }
@@ -78,13 +81,13 @@ void GameOpenGLWidget::initializeGL() {
     std::cout << "Failed to initialize GL functions" << std::endl;
   }
 
-  for (float i = -5.0f; i < 5.5f; i += 1.0f) {
-    for (float j = -5.0f; j < 5.5f; j += 1.0f) {
+  for (float i = -7.5f; i < 8.0f; i += 1.0f) {
+    for (float j = -7.5f; j < 8.0f; j += 1.0f) {
       QColor tileColor;
       if (int(i + j) % 2 == 0) {
-        tileColor.setRgbF(1.0f, 1.0f, 1.0f, 1.0f);
+        tileColor.setRgbF(1.0f, 1.0f, 1.0f);
       } else {
-        tileColor.setRgbF(0.5f, 0.5f, 0.5f, 1.0f);
+        tileColor.setRgbF(0.5f, 0.5f, 0.5f);
       }
       GroundTile tile = GroundTile(1.0f, tileColor);
       QVector3D position = QVector3D(i, 0.0f, j);
@@ -94,15 +97,15 @@ void GameOpenGLWidget::initializeGL() {
     }
   }
 
-  glCullFace(GL_BACK);
-
   shaderProgram = new QOpenGLShaderProgram();
   shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex,
                                          "./shaders/vert.glsl");
 
   shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment,
                                          "./shaders/frag.glsl");
-  shaderProgram->link();
+  if(!shaderProgram->link()){
+      std::cout << "Linking shader program failed" << std::endl;
+  }
 }
 
 void GameOpenGLWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }

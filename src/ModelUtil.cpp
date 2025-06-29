@@ -15,10 +15,10 @@ Model::Model(const std::vector<int> newIndices, const std::vector<float> newVert
 
 GroundTile::GroundTile(float size, const QColor &color){
     model.vertices = {
-        -size, 0.0f, -size, color.redF(), color.greenF(), color.blueF(), color.alphaF(),
-        -size, 0.0f, size, color.redF(), color.greenF(), color.blueF(), color.alphaF(),
-        size, 0.0f, -size, color.redF(), color.greenF(), color.blueF(), color.alphaF(),
-        size, 0.0f, size, color.redF(), color.greenF(), color.blueF(), color.alphaF(),
+        -size, 0.0f, -size, color.redF(), color.greenF(), color.blueF(),
+        -size, 0.0f, size, color.redF(), color.greenF(), color.blueF(), 
+        size, 0.0f, -size, color.redF(), color.greenF(), color.blueF(),
+        size, 0.0f, size, color.redF(), color.greenF(), color.blueF(),
     };
     model.indices = {
         0, 1, 2, 2, 1, 3

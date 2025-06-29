@@ -44,7 +44,6 @@ signals:
   void pauseGame();
 
 private:
-  GLuint VAO, VBO, IBO;
   QOpenGLShaderProgram *shaderProgram;
   std::vector<Model> models;
   std::vector<GameObject> gameObjects;

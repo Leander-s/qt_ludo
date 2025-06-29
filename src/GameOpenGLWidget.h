@@ -5,7 +5,13 @@
 #include <QtOpenGL/QOpenGLFunctions_3_3_Core>
 #include <QtOpenGL/QOpenGLShaderProgram>
 #include <QtOpenGLWidgets/QOpenGLWidget>
+<<<<<<< HEAD
 #include <iostream>
+=======
+#include <QKeyEvent>
+#include <iostream>
+#include "ModelUtil.h"
+>>>>>>> refs/remotes/origin/main
 
 namespace QtLudo {
 class GameObject {

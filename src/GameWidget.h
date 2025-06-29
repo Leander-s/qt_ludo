@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QStackedLayout>
 #include <QSizePolicy>
+#include <QTimer>
 
 namespace QtLudo {
 class GameWidget : public QWidget {

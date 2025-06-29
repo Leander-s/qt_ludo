@@ -1,13 +1,28 @@
 #pragma once
+#include "ModelUtil.h"
+#include <QKeyEvent>
 #include <QWidget>
 #include <QtOpenGL/QOpenGLFunctions_3_3_Core>
 #include <QtOpenGL/QOpenGLShaderProgram>
 #include <QtOpenGLWidgets/QOpenGLWidget>
-#include <QKeyEvent>
-#include "ModelUtil.h"
+#include <iostream>
 
 namespace QtLudo {
-class GameOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
+class GameObject {
+public:
+  GameObject(const GameObject &other);
+  GameObject(const Model &newModel);
+  GameObject(const Model &newModel, const QVector3D &position);
+  void translate(const QVector3D &translation);
+  void rotate(float angle, const QVector3D &axis);
+
+  QMatrix4x4 modelMatrix;
+  Model model;
+  GLuint VAO, VBO, IBO;
+  bool ready;
+};
+class GameOpenGLWidget : public QOpenGLWidget,
+                         protected QOpenGLFunctions_3_3_Core {
   Q_OBJECT
 
 public:
@@ -23,14 +38,15 @@ protected:
 
   void keyPressEvent(QKeyEvent *event) override;
 
+  void initializeGameObject(GameObject &gameObject);
+
 signals:
   void pauseGame();
 
 private:
   GLuint VAO, VBO, IBO;
   QOpenGLShaderProgram *shaderProgram;
-  GameGrid *grid;
-  std::vector<float> vertices;
-  std::vector<int> indices;
+  std::vector<Model> models;
+  std::vector<GameObject> gameObjects;
 };
 } // namespace QtLudo

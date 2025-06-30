@@ -4,7 +4,8 @@
     <widget class="QWidget" name="PauseMenuWidget">
         <property name="styleSheet">
             <string notr="true">
-                background-color:rgba(0,0,0,0);
+                background-color:#222222;
+                color:#222222;
             </string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">

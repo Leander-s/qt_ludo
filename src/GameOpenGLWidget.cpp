@@ -69,7 +69,7 @@ void GameOpenGLWidget::initializeGameObject(GameObject &gameObject) {
   glEnableVertexAttribArray(0);
 
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-          (void *)(3 * sizeof(float)));
+                        (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
@@ -81,16 +81,16 @@ void GameOpenGLWidget::initializeGL() {
     std::cout << "Failed to initialize GL functions" << std::endl;
   }
 
-  for (float i = -7.5f; i < 8.0f; i += 1.0f) {
-    for (float j = -7.5f; j < 8.0f; j += 1.0f) {
+  for (int i = 0; i < 15; i++) {
+    for (int j = 0; j < 15; j++) {
       QColor tileColor;
-      if (int(i + j) % 2 == 0) {
+      if ((i + j) % 2 == 0) {
         tileColor.setRgbF(1.0f, 1.0f, 1.0f);
       } else {
         tileColor.setRgbF(0.5f, 0.5f, 0.5f);
       }
-      GroundTile tile = GroundTile(1.0f, tileColor);
-      QVector3D position = QVector3D(i, 0.0f, j);
+      GroundTile tile = GroundTile(0.5f, tileColor);
+      QVector3D position = QVector3D(float(i) - 7.5, 0.0f, float(j) - 7.5);
       GameObject tileObject = GameObject(tile.model, position);
       initializeGameObject(tileObject);
       gameObjects.push_back(tileObject);
@@ -103,8 +103,8 @@ void GameOpenGLWidget::initializeGL() {
 
   shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment,
                                          "./shaders/frag.glsl");
-  if(!shaderProgram->link()){
-      std::cout << "Linking shader program failed" << std::endl;
+  if (!shaderProgram->link()) {
+    std::cout << "Linking shader program failed" << std::endl;
   }
 }
 
@@ -119,7 +119,8 @@ void GameOpenGLWidget::paintGL() {
 
   view.lookAt(QVector3D(0.0f, 25.0f, 2.0f), QVector3D(0.0f, 0.0f, -1.0f),
               QVector3D(0.0f, 1.0f, 0.0f));
-  projection.ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 50.0f);
+  projection.perspective(25, float(this->width()) / float(this->height()), 0.1f,
+                         50.0f);
 
   shaderProgram->bind();
   shaderProgram->setUniformValue("projection", projection);

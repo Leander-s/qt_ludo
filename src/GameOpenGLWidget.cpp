@@ -1,25 +1,41 @@
 #include "GameOpenGLWidget.h"
 
 namespace QtLudo {
-GameObject::GameObject(const GameObject &other) {
-  modelMatrix = other.modelMatrix;
-  model = other.model;
-  VAO = other.VAO;
-  VBO = other.VBO;
-  IBO = other.IBO;
-  ready = other.ready;
+QOpenGLTexture *loadTexture(const char *path) {
+  QImage image(path);
+  if (image.isNull()) {
+    qDebug() << "Failed to load texture!";
+    return nullptr;
+  }
+
+  QImage formattedImage = image.convertToFormat(QImage::Format_RGBA8888);
+
+  QOpenGLTexture *texture = new QOpenGLTexture(formattedImage);
+  texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+  texture->setMagnificationFilter(QOpenGLTexture::Linear);
+  texture->setWrapMode(QOpenGLTexture::Repeat);
+  if (!texture->isCreated()) {
+    std::cout << "Texture not created properly!\n";
+  }
+  return texture;
 }
-GameObject::GameObject(const Model &newModel) : model(newModel) {
+
+GameObject::GameObject(const Model &newModel, const char *texturePath)
+    : model(newModel), texturePath(texturePath) {
   modelMatrix = QMatrix4x4();
+  texturePath = "";
   ready = false;
 }
 
-GameObject::GameObject(const Model &newModel, const QVector3D &position)
-    : model(newModel) {
+GameObject::GameObject(const Model &newModel, const QVector3D &position,
+                       const char *texturePath)
+    : texturePath(texturePath), model(newModel) {
   modelMatrix = QMatrix4x4();
   modelMatrix.translate(position);
   ready = false;
 }
+
+GameObject::~GameObject() { delete texture; }
 
 void GameObject::translate(const QVector3D &translation) {
   modelMatrix.translate(translation);
@@ -36,66 +52,79 @@ GameOpenGLWidget::GameOpenGLWidget(QWidget *parent)
 
 GameOpenGLWidget::~GameOpenGLWidget() {
   makeCurrent();
-  for (GameObject gameObject : gameObjects) {
-    glDeleteBuffers(1, &gameObject.VBO);
-    glDeleteBuffers(1, &gameObject.IBO);
-    glDeleteVertexArrays(1, &gameObject.VAO);
+  for (GameObject *gameObject : gameObjects) {
+    glDeleteBuffers(1, &gameObject->VBO);
+    glDeleteBuffers(1, &gameObject->IBO);
+    glDeleteVertexArrays(1, &gameObject->VAO);
+    delete gameObject;
   }
   delete shaderProgram;
   doneCurrent();
 }
 
-void GameOpenGLWidget::initializeGameObject(GameObject &gameObject) {
+void GameOpenGLWidget::createBoard(float tileSize) {
+  std::vector<int> indices = {0, 2, 1, 2, 3, 1};
+  std::vector<float> vertices = {
+      -7.5f * tileSize, 0.0f, -7.5f * tileSize, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+      7.5f * tileSize,  0.0f, -7.5f * tileSize, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+      -7.5f * tileSize, 0.0f, 7.5f * tileSize,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+      7.5f * tileSize,  0.0f, 7.5f * tileSize,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f};
+  Model boardModel = Model(indices, vertices);
+  QVector3D position = QVector3D(0.0f, 0.0f, 0.0f);
+  GameObject *board =
+      new GameObject(boardModel, position, "./assets/LudoBoard.png");
+  initializeGameObject(board);
+  gameObjects.push_back(board);
+}
+
+void GameOpenGLWidget::initializeGameObject(GameObject *gameObject) {
+  if (!gameObject->texturePath.isEmpty()) {
+    gameObject->texture = loadTexture(gameObject->texturePath.toUtf8().data());
+  }
   // VAO
-  glGenVertexArrays(1, &gameObject.VAO);
-  glBindVertexArray(gameObject.VAO);
+  glGenVertexArrays(1, &gameObject->VAO);
+  glBindVertexArray(gameObject->VAO);
 
   // VBO
-  glGenBuffers(1, &gameObject.VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, gameObject.VBO);
+  glGenBuffers(1, &gameObject->VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, gameObject->VBO);
   glBufferData(GL_ARRAY_BUFFER,
-               gameObject.model.vertices.size() * sizeof(float),
-               gameObject.model.vertices.data(), GL_STATIC_DRAW);
+               gameObject->model.vertices.size() * sizeof(float),
+               gameObject->model.vertices.data(), GL_STATIC_DRAW);
 
   // IBO
-  glGenBuffers(1, &gameObject.IBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gameObject.IBO);
+  glGenBuffers(1, &gameObject->IBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gameObject->IBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               gameObject.model.indices.size() * sizeof(int),
-               gameObject.model.indices.data(), GL_STATIC_DRAW);
+               gameObject->model.indices.size() * sizeof(int),
+               gameObject->model.indices.data(), GL_STATIC_DRAW);
 
   // Vertex attributes
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                        (void *)(6 * sizeof(float)));
+  glEnableVertexAttribArray(2);
+
   glBindVertexArray(0);
-  gameObject.ready = true;
+  gameObject->ready = true;
 }
 
 void GameOpenGLWidget::initializeGL() {
   if (!initializeOpenGLFunctions()) {
     std::cout << "Failed to initialize GL functions" << std::endl;
   }
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+  glEnable(GL_DEPTH_TEST);
 
-  for (int i = 0; i < 15; i++) {
-    for (int j = 0; j < 15; j++) {
-      QColor tileColor;
-      if ((i + j) % 2 == 0) {
-        tileColor.setRgbF(1.0f, 1.0f, 1.0f);
-      } else {
-        tileColor.setRgbF(0.5f, 0.5f, 0.5f);
-      }
-      GroundTile tile = GroundTile(0.5f, tileColor);
-      QVector3D position = QVector3D(float(i) - 7.5, 0.0f, float(j) - 7.5);
-      GameObject tileObject = GameObject(tile.model, position);
-      initializeGameObject(tileObject);
-      gameObjects.push_back(tileObject);
-    }
-  }
+  createBoard(1.0f);
 
   shaderProgram = new QOpenGLShaderProgram();
   shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex,
@@ -112,27 +141,34 @@ void GameOpenGLWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
 
 void GameOpenGLWidget::paintGL() {
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-  glCullFace(GL_BACK);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   QMatrix4x4 view, projection, model;
 
-  view.lookAt(QVector3D(0.0f, 25.0f, 2.0f), QVector3D(0.0f, 0.0f, -1.0f),
+  view.lookAt(QVector3D(0.0f, 20.0f, 2.0f), QVector3D(0.0f, 0.0f, 1.0f),
               QVector3D(0.0f, 1.0f, 0.0f));
-  projection.perspective(25, float(this->width()) / float(this->height()), 0.1f,
-                         50.0f);
+  projection.perspective(90, float(this->width()) / float(this->height()), 0.1f,
+                         100.0f);
 
   shaderProgram->bind();
   shaderProgram->setUniformValue("projection", projection);
   shaderProgram->setUniformValue("view", view);
 
-  for (GameObject &gameObject : gameObjects) {
-    if (!gameObject.ready) {
+  for (GameObject *gameObject : gameObjects) {
+    if (!gameObject->ready) {
+      std::cout << "Object not ready\n";
       continue;
     }
-    shaderProgram->setUniformValue("model", gameObject.modelMatrix);
-    glBindVertexArray(gameObject.VAO);
-    glDrawElements(GL_TRIANGLES, gameObject.model.indices.size(),
+    if (gameObject->texture == nullptr) {
+      std::cout << "No texture\n";
+      continue;
+    }
+    glActiveTexture(GL_TEXTURE0);
+    gameObject->texture->bind();
+    shaderProgram->setUniformValue("tex", 0);
+    shaderProgram->setUniformValue("model", gameObject->modelMatrix);
+    glBindVertexArray(gameObject->VAO);
+    glDrawElements(GL_TRIANGLES, gameObject->model.indices.size(),
                    GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
   }

@@ -15,14 +15,17 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   layout->addWidget(pausemenu);
   pausemenu->raise();
 
+  /*
   QTimer *timer = new QTimer;
   connect(timer, &QTimer::timeout, openglwidget, QOverload<>::of(&GameOpenGLWidget::update));
+  timer->start(16);
+  */
+  connect(openglwidget, &QOpenGLWidget::frameSwapped, openglwidget, QOverload<>::of(&GameOpenGLWidget::update));
   connect(openglwidget, &GameOpenGLWidget::pauseGame, pausemenu,
           &QWidget::show);
   connect(pausemenu, &PauseMenuWidget::resumeGameSignal, pausemenu,
           &QWidget::hide);
   connect(pausemenu, &PauseMenuWidget::quitGameSignal, this,
           &GameWidget::quitToMenu);
-  timer->start(8);
 }
 } // namespace QtLudo

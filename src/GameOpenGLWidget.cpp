@@ -162,9 +162,9 @@ void GameOpenGLWidget::paintGL() {
       std::cout << "No texture\n";
       continue;
     }
+    glActiveTexture(GL_TEXTURE0);
     gameObject->texture->bind();
     std::cout << "Bound texture\n";
-    glActiveTexture(GL_TEXTURE0);
     shaderProgram->setUniformValue("tex", 0);
     shaderProgram->setUniformValue("model", gameObject->modelMatrix);
     glBindVertexArray(gameObject->VAO);

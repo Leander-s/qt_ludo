@@ -23,7 +23,6 @@ QOpenGLTexture *loadTexture(const char *path) {
 GameObject::GameObject(const Model &newModel, const char *texturePath)
     : model(newModel), texturePath(texturePath) {
   modelMatrix = QMatrix4x4();
-  texturePath = "";
   ready = false;
 }
 
@@ -124,8 +123,6 @@ void GameOpenGLWidget::initializeGL() {
   glCullFace(GL_BACK);
   glEnable(GL_DEPTH_TEST);
 
-  createBoard(1.0f);
-
   shaderProgram = new QOpenGLShaderProgram();
   shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex,
                                          "./shaders/vert.glsl");
@@ -135,6 +132,8 @@ void GameOpenGLWidget::initializeGL() {
   if (!shaderProgram->link()) {
     std::cout << "Linking shader program failed" << std::endl;
   }
+
+  createBoard(1.0f);
 }
 
 void GameOpenGLWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -155,16 +154,17 @@ void GameOpenGLWidget::paintGL() {
   shaderProgram->setUniformValue("view", view);
 
   for (GameObject *gameObject : gameObjects) {
-    if (!gameObject->ready) {
+    if (!gameObject || !gameObject->ready) {
       std::cout << "Object not ready\n";
       continue;
     }
-    if (gameObject->texture == nullptr) {
+    if (!gameObject->texture) {
       std::cout << "No texture\n";
       continue;
     }
-    glActiveTexture(GL_TEXTURE0);
     gameObject->texture->bind();
+    std::cout << "Bound texture\n";
+    glActiveTexture(GL_TEXTURE0);
     shaderProgram->setUniformValue("tex", 0);
     shaderProgram->setUniformValue("model", gameObject->modelMatrix);
     glBindVertexArray(gameObject->VAO);

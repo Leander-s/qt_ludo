@@ -118,6 +118,8 @@ void GameOpenGLWidget::initializeGL() {
   if (!initializeOpenGLFunctions()) {
     std::cout << "Failed to initialize GL functions" << std::endl;
   }
+
+  createBoard(1.0f);
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
@@ -132,8 +134,6 @@ void GameOpenGLWidget::initializeGL() {
   if (!shaderProgram->link()) {
     std::cout << "Linking shader program failed" << std::endl;
   }
-
-  createBoard(1.0f);
 }
 
 void GameOpenGLWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -150,6 +150,7 @@ void GameOpenGLWidget::paintGL() {
                          100.0f);
 
   shaderProgram->bind();
+  glActiveTexture(GL_TEXTURE0);
   shaderProgram->setUniformValue("projection", projection);
   shaderProgram->setUniformValue("view", view);
 
@@ -158,13 +159,11 @@ void GameOpenGLWidget::paintGL() {
       std::cout << "Object not ready\n";
       continue;
     }
-    if (!gameObject->texture) {
+    if (!gameObject->texture || !gameObject->texture->isCreated()) {
       std::cout << "No texture\n";
       continue;
     }
-    glActiveTexture(GL_TEXTURE0);
     gameObject->texture->bind();
-    std::cout << "Bound texture\n";
     shaderProgram->setUniformValue("tex", 0);
     shaderProgram->setUniformValue("model", gameObject->modelMatrix);
     glBindVertexArray(gameObject->VAO);

@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 namespace QtLudo {
-std::array<QVector2D, 60> positionMappings = {
+const std::array<QVector2D, 66> positionMappings = {
     QVector2D(-6.0f, -6.0f), QVector2D(-3.0f, -6.0f), QVector2D(-6.0f, -3.0f),
     QVector2D(-3.0f, -3.0f), QVector2D(-7.0f, -1.0f), QVector2D(-6.0f, -1.0f),
     QVector2D(-5.0f, -1.0f), QVector2D(-4.0f, -1.0f), QVector2D(-3.0f, -1.0f),
@@ -15,19 +15,21 @@ std::array<QVector2D, 60> positionMappings = {
     QVector2D(-1.0f, -3.0f), QVector2D(-1.0f, -4.0f), QVector2D(-1.0f, -5.0f),
     QVector2D(-1.0f, -6.0f), QVector2D(-1.0f, -7.0f), QVector2D(0.0f, -7.0f),
     QVector2D(1.0f, -7.0f),  QVector2D(1.0f, -6.0f),  QVector2D(1.0f, -5.0f),
-    QVector2D(1.0f, -6.0f),  QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
-    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, -4.0f),  QVector2D(1.0f, -3.0f),  QVector2D(1.0f, -2.0f),
+    QVector2D(1.0f, -1.0f),  QVector2D(2.0f, -1.0f),  QVector2D(3.0f, -1.0f),
+    QVector2D(4.0f, -1.0f),  QVector2D(5.0f, -1.0f),  QVector2D(6.0f, -1.0f),
+    QVector2D(7.0f, -1.0f),  QVector2D(7.0f, 0.0f),   QVector2D(7.0f, 1.0f),
+    QVector2D(6.0f, 1.0f),   QVector2D(5.0f, 1.0f),   QVector2D(4.0f, 1.0f),
+    QVector2D(3.0f, 1.0f),   QVector2D(2.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 2.0f),   QVector2D(1.0f, 3.0f),   QVector2D(1.0f, 4.0f),
+    QVector2D(1.0f, 5.0f),   QVector2D(1.0f, 6.0f),   QVector2D(1.0f, 7.0f),
+    QVector2D(0.0f, 7.0f),   QVector2D(-1.0f, 7.0f),  QVector2D(-1.0f, 6.0f),
+    QVector2D(-1.0f, 5.0f),  QVector2D(-1.0f, 4.0f),  QVector2D(-1.0f, 3.0f),
+    QVector2D(-1.0f, 2.0f),  QVector2D(-1.0f, 1.0f),  QVector2D(-2.0f, 1.0f),
+    QVector2D(-3.0f, 1.0f),  QVector2D(-4.0f, 1.0f),  QVector2D(-5.0f, 1.0f),
+    QVector2D(-6.0f, 1.0f),  QVector2D(-7.0f, 1.0f),  QVector2D(-7.0f, 0.0f),
+    QVector2D(-6.0f, 0.0f),  QVector2D(-5.0f, 0.0f),  QVector2D(-4.0f, 0.0f),
+    QVector2D(-3.0f, 0.0f),  QVector2D(-2.0f, 0.0f),  QVector2D(-1.0f, 0.0f),
 };
 
 class GameObject {
@@ -54,14 +56,13 @@ public:
   void update();
 
   uint8_t getPosition(ludo_color color, int index);
-  std::array<float, 2> positionToCoords(ludo_color color, uint8_t position,
-                                        float tileSize = 1.0f);
+  QVector2D positionToCoords(ludo_color color, uint8_t position,
+                             float tileSize = 1.0f);
 
   uint8_t positions[16];
 
 private:
-  std::array<float, 2> rotateCoords(std::array<float, 2> coords,
-                                    ludo_color color, float tileSize);
+  //QVector2D rotateCoords(QVector2D, ludo_color color, float tileSize);
   GameObject *createBoard(float tileSize);
   GameObject *createFigure(float tileSize);
 

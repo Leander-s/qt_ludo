@@ -29,7 +29,7 @@ Ludo::Ludo() {
   for (int i; i < 16; i++) {
     positions[i] = i % 4;
   }
-};
+}
 
 std::vector<GameObject *> Ludo::createObjects() {
   std::vector<GameObject *> objects;
@@ -53,48 +53,34 @@ GameObject *Ludo::createBoard(float tileSize) {
   return board;
 }
 
-GameObject *Ludo::createFigure(float tileSize) {};
+GameObject *Ludo::createFigure(float tileSize) {
+  std::vector<uint32_t> indices = {};
+  std::vector<float> vertices = {};
+  Model figureModel = Model(indices, vertices);
+  QVector3D position = QVector3D(0.0f, 0.0f, 0.0f);
+  GameObject *figure = new GameObject(figureModel, position, "");
+  return figure;
+};
 
-std::array<float, 2> Ludo::rotateCoords(std::array<float, 2> coords,
-                                        ludo_color color, float tileSize){
-    switch(color){
-        case ludo_color::red:
-            return coords;
-        case ludo_color::blue:
-            coords = {coords[1], coords[0]};
-            return coords;
-        case ludo_color::green:
-            coords = {150 * tileSize - coords[0], 150 * tileSize - coords[1]};
-            return coords;
-        case ludo_color::yellow:
-            coords = {150 * tileSize - coords[1], 150 * tileSize - coords[0]};
-            return coords;
-    };
+QVector2D Ludo::positionToCoords(ludo_color color, uint8_t position,
+                                 float tileSize) {
+  QVector2D coords = positionMappings[position];
+  switch (color) {
+  case ludo_color::red:
+    return coords;
+  case ludo_color::blue:
+    coords = {coords[1], coords[0]};
+    return coords;
+  case ludo_color::green:
+    coords = {15 * tileSize - coords[0], 15 * tileSize - coords[1]};
+    return coords;
+  case ludo_color::yellow:
+    coords = {15 * tileSize - coords[1], 15 * tileSize - coords[0]};
+    return coords;
+  };
   throw std::invalid_argument(
       "Color should be red, green, blue or yellow from enum ludo_color");
 }
-
-std::array<float, 2> Ludo::positionToCoords(ludo_color color, uint8_t position,
-                                            float tileSize) {
-  std::array<float, 2> coords;
-  if (position < 4) {
-    switch (position) {
-    case 0:
-      coords = {1.0f * tileSize, 1.0f * tileSize};
-      break;
-    case 1:
-      coords = {4.0f * tileSize, 1.0f * tileSize};
-      break;
-    case 2:
-      coords = {1.0f * tileSize, 4.0f * tileSize};
-      break;
-    case 3:
-      coords = {4.0f * tileSize, 4.0f * tileSize};
-      break;
-    }
-    return rotateCoords(coords, color, tileSize);
-  }
-};
 
 uint8_t Ludo::getPosition(ludo_color color, int index) {
   if (index > 3) {

@@ -16,8 +16,12 @@ public:
 private:
   GameOpenGLWidget *openglwidget;
   PauseMenuWidget *pausemenu;
+  bool paused;
 
 signals:
   void quitToMenu();
+
+private slots:
+  void togglePause();
 };
 } // namespace QtLudo

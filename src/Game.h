@@ -4,7 +4,6 @@
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
 #include <stdexcept>
-#include <unordered_map>
 
 namespace QtLudo {
 const std::array<QVector2D, 66> positionMappings = {
@@ -64,7 +63,7 @@ public:
 private:
   //QVector2D rotateCoords(QVector2D, ludo_color color, float tileSize);
   GameObject *createBoard(float tileSize);
-  GameObject *createFigure(float tileSize);
+  GameObject *createFigure(float tileSize, ludo_color color);
 
   // Offsets by color
   uint8_t red = 0;

@@ -9,6 +9,7 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   pausemenu = new PauseMenuWidget;
   openglwidget->show();
   pausemenu->hide();
+  paused = false;
   pausemenu->setContentsMargins(0, 0, 0, 0);
 
   layout->addWidget(openglwidget);
@@ -21,11 +22,21 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   timer->start(16);
   */
   connect(openglwidget, &QOpenGLWidget::frameSwapped, openglwidget, QOverload<>::of(&GameOpenGLWidget::update));
-  connect(openglwidget, &GameOpenGLWidget::pauseGame, pausemenu,
-          &QWidget::show);
+  connect(openglwidget, &GameOpenGLWidget::pauseGame, this,
+          &GameWidget::togglePause);
   connect(pausemenu, &PauseMenuWidget::resumeGameSignal, pausemenu,
           &QWidget::hide);
   connect(pausemenu, &PauseMenuWidget::quitGameSignal, this,
           &GameWidget::quitToMenu);
+}
+
+void GameWidget::togglePause(){
+    if(paused){
+        pausemenu->hide();
+        paused = false;
+    }else{
+        pausemenu->show();
+        paused = true;
+    }
 }
 } // namespace QtLudo

@@ -8,7 +8,7 @@ Model::Model(const Model& other) {
 
 Model::Model() {}
 
-Model::Model(const std::vector<int> newIndices, const std::vector<float> newVertices) {
+Model::Model(const std::vector<uint32_t> newIndices, const std::vector<float> newVertices) {
   indices = newIndices;
   vertices = newVertices;
 }

@@ -8,9 +8,9 @@ class Model {
 public:
   Model();
   Model(const Model &other);
-  Model(const std::vector<int> indices, const std::vector<float> vertices);
+  Model(const std::vector<uint32_t> indices, const std::vector<float> vertices);
 
-  std::vector<int> indices;
+  std::vector<uint32_t> indices;
   std::vector<float> vertices;
 };
 

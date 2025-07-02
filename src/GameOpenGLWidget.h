@@ -1,4 +1,5 @@
 #pragma once
+#include "Game.h"
 #include "ModelUtil.h"
 #include <QImage>
 #include <QKeyEvent>
@@ -9,26 +10,10 @@
 #include <QOpenGLWidget>
 #include <QWidget>
 #include <iostream>
-#include <qopengltexture.h>
 
 namespace QtLudo {
 QOpenGLTexture *loadTexture(const char *path);
-class GameObject {
-public:
-  GameObject(const Model &newModel, const char *texturePath);
-  GameObject(const Model &newModel, const QVector3D &position,
-             const char *texturePath);
-  ~GameObject();
-  void translate(const QVector3D &translation);
-  void rotate(float angle, const QVector3D &axis);
 
-  QMatrix4x4 modelMatrix;
-  Model model;
-  GLuint VAO, VBO, IBO;
-  QString texturePath;
-  QOpenGLTexture *texture;
-  bool ready;
-};
 class GameOpenGLWidget : public QOpenGLWidget,
                          protected QOpenGLFunctions_3_3_Core {
   Q_OBJECT
@@ -48,9 +33,10 @@ signals:
   void pauseGame();
 
 private:
-  void createBoard(float tileSize);
+  QOpenGLTexture *loadTexture(const char *path);
   QOpenGLShaderProgram *shaderProgram;
   std::vector<Model> models;
   std::vector<GameObject *> gameObjects;
+  Ludo *game;
 };
 } // namespace QtLudo

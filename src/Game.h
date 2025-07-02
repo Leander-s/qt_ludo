@@ -1,21 +1,74 @@
 #pragma once
-#include <stdexcept>
+#include "ModelUtil.h"
 #include "Players.h"
+#include <QMatrix4x4>
+#include <QOpenGLTexture>
+#include <stdexcept>
+#include <unordered_map>
 
 namespace QtLudo {
+std::array<QVector2D, 60> positionMappings = {
+    QVector2D(-6.0f, -6.0f), QVector2D(-3.0f, -6.0f), QVector2D(-6.0f, -3.0f),
+    QVector2D(-3.0f, -3.0f), QVector2D(-7.0f, -1.0f), QVector2D(-6.0f, -1.0f),
+    QVector2D(-5.0f, -1.0f), QVector2D(-4.0f, -1.0f), QVector2D(-3.0f, -1.0f),
+    QVector2D(-2.0f, -1.0f), QVector2D(-1.0f, -1.0f), QVector2D(-1.0f, -2.0f),
+    QVector2D(-1.0f, -3.0f), QVector2D(-1.0f, -4.0f), QVector2D(-1.0f, -5.0f),
+    QVector2D(-1.0f, -6.0f), QVector2D(-1.0f, -7.0f), QVector2D(0.0f, -7.0f),
+    QVector2D(1.0f, -7.0f),  QVector2D(1.0f, -6.0f),  QVector2D(1.0f, -5.0f),
+    QVector2D(1.0f, -6.0f),  QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+    QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),   QVector2D(1.0f, 1.0f),
+};
+
+class GameObject {
+public:
+  GameObject(const Model &newModel, const char *texturePath);
+  GameObject(const Model &newModel, const QVector3D &position,
+             const char *texturePath);
+  ~GameObject();
+  void translate(const QVector3D &translation);
+  void rotate(float angle, const QVector3D &axis);
+
+  QMatrix4x4 modelMatrix;
+  Model model;
+  GLuint VAO, VBO, IBO;
+  QString texturePath;
+  QOpenGLTexture *texture = nullptr;
+  bool ready;
+};
+
 class Ludo {
 public:
   Ludo();
+  std::vector<GameObject *> createObjects();
   void update();
 
-  int getPosition(ludo_color color, int index);
+  uint8_t getPosition(ludo_color color, int index);
+  std::array<float, 2> positionToCoords(ludo_color color, uint8_t position,
+                                        float tileSize = 1.0f);
 
-  int positions[16];
+  uint8_t positions[16];
+
+private:
+  std::array<float, 2> rotateCoords(std::array<float, 2> coords,
+                                    ludo_color color, float tileSize);
+  GameObject *createBoard(float tileSize);
+  GameObject *createFigure(float tileSize);
 
   // Offsets by color
-  int red = 0;
-  int green = 4;
-  int blue = 8;
-  int yellow = 12;
+  uint8_t red = 0;
+  uint8_t green = 4;
+  uint8_t blue = 8;
+  uint8_t yellow = 12;
 };
 } // namespace QtLudo

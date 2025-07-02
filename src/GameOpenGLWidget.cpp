@@ -1,49 +1,6 @@
 #include "GameOpenGLWidget.h"
 
 namespace QtLudo {
-QOpenGLTexture *loadTexture(const char *path) {
-  QImage image(path);
-  if (image.isNull()) {
-    qDebug() << "Failed to load texture!";
-    return nullptr;
-  }
-
-  QImage formattedImage = image.convertToFormat(QImage::Format_RGBA8888);
-
-  QOpenGLTexture *texture = new QOpenGLTexture(formattedImage);
-  texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-  texture->setMagnificationFilter(QOpenGLTexture::Linear);
-  texture->setWrapMode(QOpenGLTexture::Repeat);
-  if (!texture->isCreated()) {
-    std::cout << "Texture not created properly!\n";
-  }
-  return texture;
-}
-
-GameObject::GameObject(const Model &newModel, const char *texturePath)
-    : model(newModel), texturePath(texturePath) {
-  modelMatrix = QMatrix4x4();
-  ready = false;
-}
-
-GameObject::GameObject(const Model &newModel, const QVector3D &position,
-                       const char *texturePath)
-    : texturePath(texturePath), model(newModel) {
-  modelMatrix = QMatrix4x4();
-  modelMatrix.translate(position);
-  ready = false;
-}
-
-GameObject::~GameObject() { delete texture; }
-
-void GameObject::translate(const QVector3D &translation) {
-  modelMatrix.translate(translation);
-}
-
-void GameObject::rotate(float angle, const QVector3D &axis) {
-  modelMatrix.rotate(angle, axis);
-}
-
 GameOpenGLWidget::GameOpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent), shaderProgram(nullptr) {
   this->setFocusPolicy(Qt::StrongFocus);
@@ -61,25 +18,29 @@ GameOpenGLWidget::~GameOpenGLWidget() {
   doneCurrent();
 }
 
-void GameOpenGLWidget::createBoard(float tileSize) {
-  std::vector<int> indices = {0, 2, 1, 2, 3, 1};
-  std::vector<float> vertices = {
-      -7.5f * tileSize, 0.0f, -7.5f * tileSize, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-      7.5f * tileSize,  0.0f, -7.5f * tileSize, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-      -7.5f * tileSize, 0.0f, 7.5f * tileSize,  0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-      7.5f * tileSize,  0.0f, 7.5f * tileSize,  0.0f, 0.0f, 0.0f, 1.0f, 0.0f};
-  Model boardModel = Model(indices, vertices);
-  QVector3D position = QVector3D(0.0f, 0.0f, 0.0f);
-  GameObject *board =
-      new GameObject(boardModel, position, "./assets/LudoBoard.png");
-  initializeGameObject(board);
-  gameObjects.push_back(board);
+QOpenGLTexture *GameOpenGLWidget::loadTexture(const char *path) {
+  std::cout << "Loading texture at : " << path << std::endl;
+  QImage image(path);
+  if (image.isNull()) {
+    qDebug() << "Failed to load texture!";
+    return nullptr;
+  }
+
+  QImage formattedImage = image.convertToFormat(QImage::Format_RGBA8888);
+
+  QOpenGLTexture *texture = new QOpenGLTexture(formattedImage);
+  texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+  texture->setMagnificationFilter(QOpenGLTexture::Linear);
+  texture->setWrapMode(QOpenGLTexture::Repeat);
+  if (!texture->isCreated()) {
+    std::cout << "Texture not created properly!\n";
+    delete texture;
+    return nullptr;
+  }
+  return texture;
 }
 
 void GameOpenGLWidget::initializeGameObject(GameObject *gameObject) {
-  if (!gameObject->texturePath.isEmpty()) {
-    gameObject->texture = loadTexture(gameObject->texturePath.toUtf8().data());
-  }
   // VAO
   glGenVertexArrays(1, &gameObject->VAO);
   glBindVertexArray(gameObject->VAO);
@@ -95,7 +56,7 @@ void GameOpenGLWidget::initializeGameObject(GameObject *gameObject) {
   glGenBuffers(1, &gameObject->IBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gameObject->IBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               gameObject->model.indices.size() * sizeof(int),
+               gameObject->model.indices.size() * sizeof(uint32_t),
                gameObject->model.indices.data(), GL_STATIC_DRAW);
 
   // Vertex attributes
@@ -119,7 +80,6 @@ void GameOpenGLWidget::initializeGL() {
     std::cout << "Failed to initialize GL functions" << std::endl;
   }
 
-  createBoard(1.0f);
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
@@ -134,6 +94,13 @@ void GameOpenGLWidget::initializeGL() {
   if (!shaderProgram->link()) {
     std::cout << "Linking shader program failed" << std::endl;
   }
+
+  game = new Ludo();
+  gameObjects = game->createObjects();
+  for (GameObject *gameObject : gameObjects) {
+    initializeGameObject(gameObject);
+    gameObject->texture = loadTexture(gameObject->texturePath.toUtf8().data());
+  }
 }
 
 void GameOpenGLWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -144,32 +111,30 @@ void GameOpenGLWidget::paintGL() {
 
   QMatrix4x4 view, projection, model;
 
-  view.lookAt(QVector3D(0.0f, 20.0f, 2.0f), QVector3D(0.0f, 0.0f, 1.0f),
+  view.lookAt(QVector3D(0.0f, 8.0f, 2.0f), QVector3D(0.0f, 0.0f, 1.0f),
               QVector3D(0.0f, 1.0f, 0.0f));
   projection.perspective(90, float(this->width()) / float(this->height()), 0.1f,
                          100.0f);
 
   shaderProgram->bind();
-  glActiveTexture(GL_TEXTURE0);
   shaderProgram->setUniformValue("projection", projection);
   shaderProgram->setUniformValue("view", view);
+  shaderProgram->setUniformValue("tex", 0);
+  glActiveTexture(GL_TEXTURE0);
 
   for (GameObject *gameObject : gameObjects) {
-    if (!gameObject || !gameObject->ready) {
+    if (!gameObject || !gameObject->ready || !gameObject->texture) {
       std::cout << "Object not ready\n";
       continue;
     }
-    if (!gameObject->texture || !gameObject->texture->isCreated()) {
-      std::cout << "No texture\n";
-      continue;
-    }
+
     gameObject->texture->bind();
-    shaderProgram->setUniformValue("tex", 0);
     shaderProgram->setUniformValue("model", gameObject->modelMatrix);
     glBindVertexArray(gameObject->VAO);
     glDrawElements(GL_TRIANGLES, gameObject->model.indices.size(),
                    GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
+    gameObject->texture->release();
   }
   shaderProgram->release();
 }

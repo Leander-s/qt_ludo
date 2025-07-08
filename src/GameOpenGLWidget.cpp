@@ -19,7 +19,6 @@ GameOpenGLWidget::~GameOpenGLWidget() {
 }
 
 QOpenGLTexture *GameOpenGLWidget::loadTexture(const char *path) {
-  std::cout << "Loading texture at : " << path << std::endl;
   QImage image(path);
   if (image.isNull()) {
     qDebug() << "Failed to load texture!";

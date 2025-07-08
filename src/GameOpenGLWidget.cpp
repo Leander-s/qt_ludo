@@ -138,9 +138,11 @@ void GameOpenGLWidget::paintGL() {
   shaderProgram->release();
 }
 
+/*
 void GameOpenGLWidget::keyPressEvent(QKeyEvent *event) {
   if (event->key() == Qt::Key_Escape) {
     emit pauseGame();
   }
 }
+*/
 } // namespace QtLudo

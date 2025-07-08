@@ -9,7 +9,6 @@
 #include <QOpenGLTexture>
 #include <QOpenGLWidget>
 #include <QWidget>
-#include <iostream>
 
 namespace QtLudo {
 QOpenGLTexture *loadTexture(const char *path);
@@ -26,11 +25,13 @@ protected:
   void initializeGL() override;
   void resizeGL(int w, int h) override;
   void paintGL() override;
-  void keyPressEvent(QKeyEvent *event) override;
+  //void keyPressEvent(QKeyEvent *event) override;
   void initializeGameObject(GameObject *gameObject);
 
+  /*
 signals:
   void pauseGame();
+  */
 
 private:
   QOpenGLTexture *loadTexture(const char *path);

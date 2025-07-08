@@ -18,6 +18,8 @@ private:
   PauseMenuWidget *pausemenu;
   bool paused;
 
+  void keyPressEvent(QKeyEvent *event) override;
+
 signals:
   void quitToMenu();
 

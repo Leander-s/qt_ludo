@@ -54,16 +54,16 @@ public:
   std::vector<GameObject *> createObjects();
   void update();
 
-  uint8_t getPosition(ludo_color color, int index);
-  QVector2D positionToCoords(ludo_color color, uint8_t position,
+  uint8_t getPosition(LudoColor color, int index);
+  QVector2D positionToCoords(LudoColor color, uint8_t position,
                              float tileSize = 1.0f);
 
   uint8_t positions[16];
 
 private:
-  //QVector2D rotateCoords(QVector2D, ludo_color color, float tileSize);
+  //QVector2D rotateCoords(QVector2D, LudoColor color, float tileSize);
   GameObject *createBoard(float tileSize);
-  GameObject *createFigure(float tileSize, ludo_color color);
+  GameObject *createFigure(float tileSize, LudoColor color);
 
   // Offsets by color
   uint8_t red = 0;

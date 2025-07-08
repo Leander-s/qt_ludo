@@ -33,19 +33,18 @@ Ludo::Ludo() {
 }
 
 std::vector<GameObject *> Ludo::createObjects() {
-  std::cout << "Creating objects\n";
   std::vector<GameObject *> objects(16, nullptr);
   GameObject *board = createBoard(1.0f);
   for(int i = 0; i < 4; i++){
-      GameObject *redFigure = createFigure(1.0f, ludo_color::red);
-      GameObject *blueFigure = createFigure(1.0f, ludo_color::blue);
-      GameObject *greenFigure = createFigure(1.0f, ludo_color::green);
-      GameObject *yellowFigure = createFigure(1.0f, ludo_color::yellow);
+      GameObject *redFigure = createFigure(1.0f, LudoColor::red);
+      GameObject *blueFigure = createFigure(1.0f, LudoColor::blue);
+      GameObject *greenFigure = createFigure(1.0f, LudoColor::green);
+      GameObject *yellowFigure = createFigure(1.0f, LudoColor::yellow);
 
-      QVector2D redPosition = positionToCoords(ludo_color::red, i);
-      QVector2D bluePosition = positionToCoords(ludo_color::blue, i);
-      QVector2D greenPosition = positionToCoords(ludo_color::green, i);
-      QVector2D yellowPosition = positionToCoords(ludo_color::yellow, i);
+      QVector2D redPosition = positionToCoords(LudoColor::red, i);
+      QVector2D bluePosition = positionToCoords(LudoColor::blue, i);
+      QVector2D greenPosition = positionToCoords(LudoColor::green, i);
+      QVector2D yellowPosition = positionToCoords(LudoColor::yellow, i);
 
       redFigure->translate(QVector3D(redPosition.x(), 0.0f, redPosition.y()));
       blueFigure->translate(QVector3D(bluePosition.x(), 0.0f, bluePosition.y()));
@@ -76,25 +75,25 @@ GameObject *Ludo::createBoard(float tileSize) {
   return board;
 }
 
-GameObject *Ludo::createFigure(float tileSize, ludo_color color) {
+GameObject *Ludo::createFigure(float tileSize, LudoColor color) {
     float r = 0.0f,g = 0.0f,b = 0.0f;
     switch(color){
-        case ludo_color::red:
+        case LudoColor::red:
             r = 1.0f;
             g = 0.0f;
             b = 0.0f;
             break;
-        case ludo_color::blue:
+        case LudoColor::blue:
             r = 0.0f;
             g = 0.0f;
             b = 1.0f;
             break;
-        case ludo_color::green:
+        case LudoColor::green:
             r = 0.0f;
             g = 128.0f/255.0f;
             b = 0.0f;
             break;
-        case ludo_color::yellow:
+        case LudoColor::yellow:
             r = 0.7f;
             g = 0.7f;
             b = 0.0f;
@@ -124,45 +123,45 @@ GameObject *Ludo::createFigure(float tileSize, ludo_color color) {
   return figure;
 };
 
-QVector2D Ludo::positionToCoords(ludo_color color, uint8_t position,
+QVector2D Ludo::positionToCoords(LudoColor color, uint8_t position,
                                  float tileSize) {
   QVector2D red_coords = positionMappings[position];
   QVector2D coords;
   switch (color) {
-  case ludo_color::red:
+  case LudoColor::red:
     coords = red_coords;
     break;
-  case ludo_color::blue:
+  case LudoColor::blue:
     coords = QVector2D(-red_coords.y(), red_coords.x());
     break;
-  case ludo_color::yellow:
+  case LudoColor::yellow:
     coords = QVector2D(-red_coords.x(), -red_coords.y());
     break;
-  case ludo_color::green:
+  case LudoColor::green:
     coords = QVector2D(red_coords.y(),  -red_coords.x());
     break;
   default:
     throw std::invalid_argument(
-            "Color should be red, green, blue or yellow from enum ludo_color");
+            "Color should be red, green, blue or yellow from enum LudoColor");
   };
   return coords;
 }
 
-uint8_t Ludo::getPosition(ludo_color color, int index) {
+uint8_t Ludo::getPosition(LudoColor color, int index) {
   if (index > 3) {
     throw std::invalid_argument("There are only 4 pieces per color");
   }
   switch (color) {
-  case ludo_color::red:
+  case LudoColor::red:
     return positions[index];
-  case ludo_color::green:
+  case LudoColor::green:
     return positions[index + 4];
-  case ludo_color::blue:
+  case LudoColor::blue:
     return positions[index + 8];
-  case ludo_color::yellow:
+  case LudoColor::yellow:
     return positions[index + 12];
   }
   throw std::invalid_argument(
-      "Color should be red, green, blue or yellow from enum ludo_color");
+      "Color should be red, green, blue or yellow from enum LudoColor");
 }
 } // namespace QtLudo

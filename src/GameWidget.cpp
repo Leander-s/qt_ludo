@@ -26,7 +26,7 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   /*
   connect(openglwidget, &GameOpenGLWidget::pauseGame, this,
           &GameWidget::togglePause);
-          */
+  */
   connect(pausemenu, &PauseMenuWidget::resumeGameSignal, pausemenu,
           &QWidget::hide);
   connect(pausemenu, &PauseMenuWidget::quitGameSignal, this,

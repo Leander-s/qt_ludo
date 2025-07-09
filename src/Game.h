@@ -5,7 +5,12 @@
 #include <QOpenGLTexture>
 #include <stdexcept>
 
+#define NUMBER_OF_PLAYERS 4
+#define NUMBER_OF_PIECES_PER_PLAYER 4
+#define NUMBER_OF_PIECES (NUMBER_OF_PIECES_PER_PLAYER * NUMBER_OF_PLAYERS)
+
 namespace QtLudo {
+// This should be in a config file
 const std::array<QVector2D, 66> positionMappings = {
     QVector2D(-6.0f, -6.0f), QVector2D(-3.0f, -6.0f), QVector2D(-6.0f, -3.0f),
     QVector2D(-3.0f, -3.0f), QVector2D(-7.0f, -1.0f), QVector2D(-6.0f, -1.0f),
@@ -29,6 +34,10 @@ const std::array<QVector2D, 66> positionMappings = {
     QVector2D(-6.0f, 1.0f),  QVector2D(-7.0f, 1.0f),  QVector2D(-7.0f, 0.0f),
     QVector2D(-6.0f, 0.0f),  QVector2D(-5.0f, 0.0f),  QVector2D(-4.0f, 0.0f),
     QVector2D(-3.0f, 0.0f),  QVector2D(-2.0f, 0.0f),  QVector2D(-1.0f, 0.0f),
+};
+
+struct GameState {
+  int positions[NUMBER_OF_PIECES];
 };
 
 class GameObject {
@@ -58,17 +67,17 @@ public:
   QVector2D positionToCoords(LudoColor color, uint8_t position,
                              float tileSize = 1.0f);
 
-  uint8_t positions[16];
+  uint8_t positions[NUMBER_OF_PIECES];
 
 private:
-  //QVector2D rotateCoords(QVector2D, LudoColor color, float tileSize);
+  // QVector2D rotateCoords(QVector2D, LudoColor color, float tileSize);
   GameObject *createBoard(float tileSize);
   GameObject *createFigure(float tileSize, LudoColor color);
 
   // Offsets by color
-  uint8_t red = 0;
-  uint8_t green = 4;
-  uint8_t blue = 8;
-  uint8_t yellow = 12;
+  uint8_t redOffset = 0;
+  uint8_t greenOffset = redOffset + NUMBER_OF_PIECES_PER_PLAYER;
+  uint8_t blueOffset = greenOffset + NUMBER_OF_PIECES_PER_PLAYER;
+  uint8_t yellowOffset = blueOffset + NUMBER_OF_PIECES_PER_PLAYER;
 };
 } // namespace QtLudo

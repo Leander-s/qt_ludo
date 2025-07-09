@@ -5,8 +5,11 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   QStackedLayout *layout = new QStackedLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
 
+  Ludo *game = new Ludo();
+
   openglwidget = new GameOpenGLWidget;
   pausemenu = new PauseMenuWidget;
+  openglwidget->initializeGame(game->state);
   openglwidget->show();
   pausemenu->hide();
   paused = false;
@@ -31,6 +34,8 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
           &QWidget::hide);
   connect(pausemenu, &PauseMenuWidget::quitGameSignal, this,
           &GameWidget::quitToMenu);
+
+  game->start();
 }
 
 void GameWidget::togglePause() {

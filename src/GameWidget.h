@@ -1,5 +1,6 @@
 #pragma once
 #include "GameOpenGLWidget.h"
+#include "Game.h"
 #include "PauseMenuWidget.h"
 #include <QWidget>
 #include <QStackedLayout>

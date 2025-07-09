@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include "State.h"
 
 namespace QtLudo {
 class Controller : public QObject {
@@ -10,7 +11,6 @@ public slots:
 };
 
 enum AiStrategy {oneManArmy};
-enum LudoColor { red, blue, yellow, green };
 class Player {
   bool moving;
 

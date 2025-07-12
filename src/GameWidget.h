@@ -18,8 +18,11 @@ private:
   GameOpenGLWidget *openglwidget;
   PauseMenuWidget *pausemenu;
   bool paused;
+  Ludo *game;
+  MapConfig config;
 
   void keyPressEvent(QKeyEvent *event) override;
+  void updateGameState();
 
 signals:
   void quitToMenu();

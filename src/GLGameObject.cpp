@@ -1,5 +1,4 @@
 #include "GLGameObject.h"
-#include <qmatrix4x4.h>
 
 namespace QtLudo {
 GameObject::GameObject(const Model &newModel, const char *texturePath)

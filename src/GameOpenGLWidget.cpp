@@ -1,5 +1,4 @@
 #include "GameOpenGLWidget.h"
-#include "State.h"
 
 namespace QtLudo {
 GameOpenGLWidget::GameOpenGLWidget(QWidget *parent)
@@ -95,15 +94,16 @@ void GameOpenGLWidget::initializeGL() {
     std::cout << "Linking shader program failed" << std::endl;
   }
   // :)
-}
-
-void GameOpenGLWidget::initializeGame(GameState *state) {
-  gameState = state;
-  gameObjects = createObjects();
   for (GameObject *gameObject : gameObjects) {
     initializeGameObject(gameObject);
     gameObject->texture = loadTexture(gameObject->texturePath.toUtf8().data());
   }
+}
+
+void GameOpenGLWidget::initializeGame(MapConfig newConfig, GameState *state) {
+  config = newConfig;
+  gameState = state;
+  gameObjects = createObjects();
 }
 
 void GameOpenGLWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -166,19 +166,19 @@ QVector2D GameOpenGLWidget::positionToCoords(LudoColor color, uint8_t position,
   return coords;
 }
 
-void GameOpenGLWidget::updatePosition(LudoColor color, int index){
-    uint8_t pieceIndex = getPiece(color, index);  
-    uint8_t position = gameState->positions[pieceIndex];
+void GameOpenGLWidget::updatePosition(LudoColor color, int index) {
+  uint8_t pieceIndex = getPiece(color, index);
+  uint8_t position = gameState->positions[pieceIndex];
 
-    QVector2D coords = positionToCoords(color, position);
+  QVector2D coords = positionToCoords(color, position);
 
-    GameObject *object = gameObjects[pieceIndex];
+  GameObject *object = gameObjects[pieceIndex];
 
-    object->setPosition(QVector3D(coords.x(), 0.0f, coords.y()));
+  object->setPosition(QVector3D(coords.x(), 0.0f, coords.y()));
 }
 
 void GameOpenGLWidget::updateAllPositions() {
-  for (int i = 0; i < NUMBER_OF_PIECES_PER_PLAYER; i++) {
+  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
     uint8_t redPosI = gameState->positions[i + redOffset];
     uint8_t bluePosI = gameState->positions[i + blueOffset];
     uint8_t greenPosI = gameState->positions[i + greenOffset];
@@ -204,10 +204,10 @@ void GameOpenGLWidget::updateAllPositions() {
 }
 
 std::vector<GameObject *> GameOpenGLWidget::createObjects() {
-  std::vector<GameObject *> objects(NUMBER_OF_PIECES, nullptr);
+  std::vector<GameObject *> objects(config.numberOfPieces, nullptr);
   const float defaultTileSize = 1.0f;
   GameObject *board = createBoard(defaultTileSize);
-  for (int i = 0; i < NUMBER_OF_PIECES_PER_PLAYER; i++) {
+  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
     GameObject *redFigure = createFigure(defaultTileSize, LudoColor::red);
     GameObject *blueFigure = createFigure(defaultTileSize, LudoColor::blue);
     GameObject *greenFigure = createFigure(defaultTileSize, LudoColor::green);

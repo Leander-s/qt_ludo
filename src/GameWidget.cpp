@@ -41,9 +41,6 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
           &QWidget::hide);
   connect(pausemenu, &PauseMenuWidget::quitGameSignal, this,
           &GameWidget::quitToMenu);
-
-  game->start();
-  // updateGameState();
 }
 
 void GameWidget::togglePause() {
@@ -61,52 +58,86 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
     togglePause();
   }
 
+  // Not a very elegant way to do this...
   if (!game->humanMove) {
     return;
   }
+
   LudoColor color = game->state->toMove;
+  Player *player = game->players[game->getPlayer(color)];
   uint8_t offset = game->getPosition(color, 0);
-  Player *player = &game->players[game->getPlayer(color)];
-  uint8_t roll = game->roll(clock());
   std::vector<bool> possibleMoves = player->getPossibleMoves(
-      game->state->positions, roll, game->config, game->getPosition(color, 0));
+      game->state->positions + offset, lastDieRoll, game->config);
 
-  if (event->key() == Qt::Key_1) {
-      if(!possibleMoves[0]){
-          return;
-      }
-      game->state->positions[0] += roll;
+  bool canMove = false;
+  for (bool movePossible : possibleMoves) {
+    if (movePossible) {
+      canMove = true;
+    }
   }
 
-  if (event->key() == Qt::Key_2) {
-      if(!possibleMoves[1]){
-          return;
-      }
+  if (!canMove) {
+    game->applyMove(255, lastDieRoll);
+    updateGameState();
+    return;
   }
-
-  if (event->key() == Qt::Key_3) {
-      if(!possibleMoves[2]){
-          return;
-      }
-  }
-
-  if (event->key() == Qt::Key_4) {
-      if(!possibleMoves[3]){
-          return;
-      }
+  switch (event->key()) {
+  case Qt::Key_1:
+    if (!possibleMoves[0]) {
+      break;
+    }
+    game->applyMove(offset + 0, lastDieRoll);
+    openglwidget->updatePosition(game->state->toMove, offset + 0);
+    updateGameState();
+    break;
+  case Qt::Key_2:
+    if (!possibleMoves[1]) {
+      break;
+    }
+    game->applyMove(offset + 1, lastDieRoll);
+    openglwidget->updatePosition(game->state->toMove, offset + 1);
+    updateGameState();
+    break;
+  case Qt::Key_3:
+    if (!possibleMoves[2]) {
+      break;
+    }
+    game->applyMove(offset + 2, lastDieRoll);
+    openglwidget->updatePosition(game->state->toMove, offset + 2);
+    updateGameState();
+    break;
+  case Qt::Key_4:
+    if (!possibleMoves[3]) {
+      break;
+    }
+    game->applyMove(offset + 3, lastDieRoll);
+    openglwidget->updatePosition(game->state->toMove, offset + 3);
+    updateGameState();
+    break;
   }
 }
 
+void GameWidget::startGame() {
+  game->start();
+  updateGameState();
+}
+
 void GameWidget::updateGameState() {
-  std::array<uint8_t, 2> turnResult = game->update();
-  uint8_t movedPiece = turnResult[0];
-  uint8_t roll = turnResult[1];
-  bool humansTurn = movedPiece == 255;
-  if (humansTurn) {
+  game->humanMove = false;
+  std::cout << printLudoColor(game->state->toMove) << "'s turn\n";
+  Player *player = game->players[game->getPlayer(game->state->toMove)];
+  uint32_t seed = std::time(0);
+  lastDieRoll = game->roll(seed);
+  if (player->human) {
+    game->humanMove = true;
     return;
   }
 
-  openglwidget->updatePosition(game->state->toMove, movedPiece);
+  uint8_t *positions = game->state->positions;
+  uint8_t pieceToMove = game->findMove(player, lastDieRoll);
+  game->applyMove(pieceToMove, lastDieRoll);
+
+  openglwidget->updatePosition(game->state->toMove, pieceToMove);
   updateGameState();
 }
 

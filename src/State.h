@@ -1,9 +1,10 @@
 #pragma once
-#include <stdint.h>
-#include <stdexcept>
 #include <QVector2D>
+#include <iostream>
+#include <stdexcept>
+#include <stdint.h>
 
-namespace QtLudo{
+namespace QtLudo {
 const std::array<QVector2D, 66> positionMappings = {
     QVector2D(-6.0f, -6.0f), QVector2D(-3.0f, -6.0f), QVector2D(-6.0f, -3.0f),
     QVector2D(-3.0f, -3.0f), QVector2D(-7.0f, -1.0f), QVector2D(-6.0f, -1.0f),
@@ -37,21 +38,23 @@ const uint8_t yellowOffset = blueOffset + 4;
 
 enum LudoColor { red, blue, yellow, green };
 
-LudoColor operator++(LudoColor& color, int);
+const char *printLudoColor(LudoColor color);
+
+LudoColor operator++(LudoColor &color, int);
 
 uint8_t getPiece(LudoColor color, int index);
 
 uint8_t getOffset(LudoColor color);
 
 struct MapConfig {
-    uint8_t numberOfPlayers;
-    uint8_t numberOfPiecesPerPlayer;
-    uint8_t numberOfPieces;
-    uint8_t lengthOfPath;
+  uint8_t numberOfPlayers;
+  uint8_t numberOfPiecesPerPlayer;
+  uint8_t numberOfPieces;
+  uint8_t lengthOfPath;
 };
 
 struct GameState {
-  uint8_t* positions;
+  uint8_t *positions;
   LudoColor toMove;
 };
-}
+} // namespace QtLudo

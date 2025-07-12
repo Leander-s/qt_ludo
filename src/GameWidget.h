@@ -13,6 +13,7 @@ class GameWidget : public QWidget {
 
 public:
   GameWidget(QWidget *parent = nullptr);
+  void startGame();
 
 private:
   GameOpenGLWidget *openglwidget;
@@ -20,6 +21,7 @@ private:
   bool paused;
   Ludo *game;
   MapConfig config;
+  uint8_t lastDieRoll;
 
   void keyPressEvent(QKeyEvent *event) override;
   void updateGameState();

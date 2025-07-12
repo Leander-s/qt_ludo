@@ -2,13 +2,12 @@
 
 namespace QtLudo {
 std::vector<bool> Player::getPossibleMoves(uint8_t *playerPositions,
-                                             uint8_t roll, MapConfig config,
-                                             uint8_t playerOffset) {
+                                           uint8_t roll, MapConfig config) {
   bool sixRolled = roll == 6;
   std::vector<bool> possibleMoves(config.numberOfPiecesPerPlayer, false);
 
   for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
-    // Check if I there is enough space to move my piece
+    // Check if there is enough space to move my piece
     bool notTooFar = (config.lengthOfPath - playerPositions[i]) >= roll;
     if (!notTooFar) {
       break;
@@ -32,10 +31,16 @@ std::vector<bool> Player::getPossibleMoves(uint8_t *playerPositions,
   return possibleMoves;
 }
 
+Player::Player(LudoColor _color) : color(_color) {};
+
+HumanPlayer::HumanPlayer(LudoColor _color) : Player(_color) { human = true; };
+
+AIPlayer::AIPlayer(LudoColor _color) : Player(_color) { human = false; };
+
 uint8_t OneManArmy::decide(uint8_t *positions, uint8_t roll, MapConfig config,
                            uint8_t playerOffset) {
   std::vector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config, playerOffset);
+      getPossibleMoves(positions + playerOffset, roll, config);
   uint8_t *playerPositions = positions + playerOffset;
   int bestScore = 0x80000000; // minimum integer value
   uint8_t bestScoreIndex = 255;
@@ -55,7 +60,7 @@ uint8_t OneManArmy::decide(uint8_t *positions, uint8_t roll, MapConfig config,
 uint8_t YouNeverWalkAlone::decide(uint8_t *positions, uint8_t roll,
                                   MapConfig config, uint8_t playerOffset) {
   std::vector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config, playerOffset);
+      getPossibleMoves(positions + playerOffset, roll, config);
   uint8_t *playerPositions = positions + playerOffset;
   int bestScore = 0x80000000; // minimum integer value
   uint8_t bestScoreIndex = 255;
@@ -90,7 +95,7 @@ uint8_t YouNeverWalkAlone::decide(uint8_t *positions, uint8_t roll,
 uint8_t Pacifist::decide(uint8_t *positions, uint8_t roll, MapConfig config,
                          uint8_t playerOffset) {
   std::vector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config, playerOffset);
+      getPossibleMoves(positions + playerOffset, roll, config);
   uint8_t *playerPositions = positions + playerOffset;
   int bestScore = 0x80000000; // minimum integer value
   uint8_t bestScoreIndex = 255;
@@ -119,7 +124,7 @@ uint8_t Pacifist::decide(uint8_t *positions, uint8_t roll, MapConfig config,
 uint8_t Killer::decide(uint8_t *positions, uint8_t roll, MapConfig config,
                        uint8_t playerOffset) {
   std::vector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config, playerOffset);
+      getPossibleMoves(positions + playerOffset, roll, config);
   uint8_t *playerPositions = positions + playerOffset;
   int bestScore = 0x80000000; // minimum integer value
   uint8_t bestScoreIndex = 255;

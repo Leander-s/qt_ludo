@@ -17,7 +17,10 @@ LudoWindow::LudoWindow(QWidget *parent) : QMainWindow(parent) {
   connect(gameWidget, &GameWidget::quitToMenu, this, &LudoWindow::returnToMenu);
 };
 
-void LudoWindow::startGame() { widgetStack->setCurrentWidget(gameWidget); }
+void LudoWindow::startGame() { 
+    widgetStack->setCurrentWidget(gameWidget); 
+    gameWidget->startGame();
+}
 
 void LudoWindow::returnToMenu() { widgetStack->setCurrentWidget(menu); }
 } // namespace QtLudo

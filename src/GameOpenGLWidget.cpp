@@ -167,12 +167,11 @@ QVector2D GameOpenGLWidget::positionToCoords(LudoColor color, uint8_t position,
 }
 
 void GameOpenGLWidget::updatePosition(LudoColor color, int index) {
-  uint8_t pieceIndex = getPiece(color, index);
-  uint8_t position = gameState->positions[pieceIndex];
+  uint8_t position = gameState->positions[index];
 
   QVector2D coords = positionToCoords(color, position);
 
-  GameObject *object = gameObjects[pieceIndex];
+  GameObject *object = gameObjects[index];
 
   object->setPosition(QVector3D(coords.x(), 0.0f, coords.y()));
 }

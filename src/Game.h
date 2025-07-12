@@ -14,8 +14,10 @@ namespace QtLudo {
 class Ludo {
 public:
   Ludo(MapConfig newConfig);
+  ~Ludo();
   void start();
-  std::array<uint8_t, 2> update();
+  uint8_t findMove(Player *player, uint8_t dieRoll);
+  void applyMove(uint8_t totalPiece, uint8_t dieRoll);
   uint8_t roll(uint32_t seed);
   LudoColor startingRoll();
 
@@ -26,7 +28,7 @@ public:
 
   bool humanMove;
 
-  std::vector<Player> players;
+  std::vector<Player*> players;
   int getPlayer(LudoColor color);
 };
-}  // namespace QtLudo
+} // namespace QtLudo

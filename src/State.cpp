@@ -16,6 +16,20 @@ LudoColor operator++(LudoColor &color, int) {
   }
 }
 
+const char* printLudoColor(LudoColor color){
+    switch(color){
+        case LudoColor::red:
+            return "Red";
+        case LudoColor::blue:
+            return "Blue";
+        case LudoColor::green:
+            return "Green";
+        case LudoColor::yellow:
+            return "Yellow";
+    }
+    return 0;
+}
+
 uint8_t getPiece(LudoColor color, int index) {
   if (index > 4 - 1) {
     throw std::invalid_argument("Piece index out of range");
@@ -41,5 +55,6 @@ uint8_t getOffset(LudoColor color){
         case LudoColor::blue: return blueOffset;
         case LudoColor::yellow: return yellowOffset;
     }
+    return 0;
 }
 } // namespace QtLudo

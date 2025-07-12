@@ -24,28 +24,32 @@ private:
   Controller controller;
 };
 
-class AIPlayer : Player {
+class AIPlayer : public Player {
 public:
   virtual uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
                          uint8_t playerOffset);
 };
 
 class OneManArmy : AIPlayer {
+public:
   uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
                  uint8_t playerOffset) override;
 };
 
 class YouNeverWalkAlone : AIPlayer {
+public:
   uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
                  uint8_t playerOffset) override;
 };
 
 class Pacifist : AIPlayer {
+public:
   uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
                  uint8_t playerOffset) override;
 };
 
 class Killer : AIPlayer {
+public:
   uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
                  uint8_t playerOffset) override;
 };

@@ -1,12 +1,11 @@
 #pragma once
+#include "defaultMap.h"
 #include <QFile>
 #include <iostream>
-#include "defaultMap.h"
 
 namespace QtLudo {
 constexpr char fType[4] = {'P', 'P', '\r', '\n'};
 constexpr quint32 version = 1;
-
 
 struct MapConfig {
   quint8 numberOfPlayers;
@@ -17,16 +16,17 @@ struct MapConfig {
 
 class Map {
 public:
-  Map(QString path = "default");
+  Map(const QString path = "default");
   ~Map();
-  QVector2D getCoords(quint8 figure, quint8 index);
-  quint8 getTotalIndex(quint8 figure, quint8 index);
+  const QVector2D &getCoords(const quint8 figure, const quint8 index) const;
+  const quint8 getTotalIndex(const quint8 figure, const quint8 index) const;
+  const MapConfig &getMapConfig() const;
 
 private:
   QVector<QVector2D> posCoordMap;
   QVector<QVector<quint8>> paths;
   MapConfig config;
-  bool saveMap(QString path);
-  bool loadMap(QString path);
+  bool saveMap(const QString path);
+  bool loadMap(const QString path);
 };
 } // namespace QtLudo

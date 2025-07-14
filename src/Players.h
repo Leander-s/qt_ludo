@@ -1,6 +1,6 @@
 #pragma once
 #include "State.h"
-#include <QObject>
+#include "Map.h"
 
 namespace QtLudo {
 class Controller : public QObject {
@@ -12,7 +12,7 @@ enum PlayerType { human, AI };
 class Player {
 public:
   Player(LudoColor _color);
-  std::vector<bool> getPossibleMoves(uint8_t *positions, uint8_t roll,
+  std::vector<bool> getPossibleMoves(quint8 *positions, quint8 roll,
                                      MapConfig config);
   bool moving;
   bool human;
@@ -27,8 +27,8 @@ public:
 class AIPlayer : public Player {
 public:
   AIPlayer(LudoColor _color);
-  virtual uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                         uint8_t playerOffset) {
+  virtual quint8 decide(quint8 *positions, quint8 roll, const MapConfig &config,
+                         quint8 playerOffset) {
     return 0;
   }
 };
@@ -36,28 +36,28 @@ public:
 class OneManArmy : public AIPlayer {
 public:
   OneManArmy(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
+  quint8 decide(quint8 *positions, quint8 roll, MapConfig config,
+                 quint8 playerOffset) override;
 };
 
 class YouNeverWalkAlone : public AIPlayer {
 public:
   YouNeverWalkAlone(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
+  quint8 decide(quint8 *positions, quint8 roll, MapConfig config,
+                 quint8 playerOffset) override;
 };
 
 class Pacifist : public AIPlayer {
 public:
   Pacifist(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
+  quint8 decide(quint8 *positions, quint8 roll, MapConfig config,
+                 quint8 playerOffset) override;
 };
 
 class Killer : public AIPlayer {
 public:
   Killer(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
+  quint8 decide(quint8 *positions, quint8 roll, MapConfig config,
+                 quint8 playerOffset) override;
 };
 } // namespace QtLudo

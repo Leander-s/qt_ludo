@@ -1,11 +1,11 @@
 #pragma once
 #include "GLGameObject.h"
+#include "Map.h"
 #include "ModelUtil.h"
 #include "Players.h"
 #include "State.h"
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
-#include <array>
 #include <stdlib.h>
 #include <time.h>
 
@@ -13,22 +13,17 @@ namespace QtLudo {
 // This should be in a config file
 class Ludo {
 public:
-  Ludo(MapConfig newConfig);
-  ~Ludo();
+  Ludo(const Map *map);
   void start();
-  uint8_t findMove(Player *player, uint8_t dieRoll);
-  void applyMove(uint8_t totalPiece, uint8_t dieRoll);
-  uint8_t roll(uint32_t seed);
-  LudoColor startingRoll();
+  const quint8 findMove(const quint8 playerIndex, const quint8 dieRoll);
+  void applyMove(const quint8 playerIndex, const quint8 figure, const quint8 dieRoll);
+  const quint8 roll(const quint32 seed);
+  const quint8 startingRoll();
 
-  uint8_t getPosition(LudoColor color, int index);
-
-  GameState *state;
-  MapConfig config;
-
+  const MapConfig config;
+  const Map *map;
+  GameState state;
+  std::vector<Player> players;
   bool humanMove;
-
-  std::vector<Player*> players;
-  int getPlayer(LudoColor color);
 };
 } // namespace QtLudo

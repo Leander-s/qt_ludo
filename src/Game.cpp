@@ -1,74 +1,42 @@
 #include "Game.h"
 
 namespace QtLudo {
-Ludo::Ludo(MapConfig newConfig) : config(newConfig) {
-  state = new GameState;
-  players = {new HumanPlayer(LudoColor::red), new OneManArmy(LudoColor::blue),
-             new YouNeverWalkAlone(LudoColor::green),
-             new Killer(LudoColor::yellow)};
-  state->positions = new uint8_t[config.numberOfPieces];
-  for (int i; i < config.numberOfPieces; i++) {
-    state->positions[i] = i % config.numberOfPiecesPerPlayer;
-  }
-}
-
-Ludo::~Ludo() {
-  delete state->positions;
-  delete state;
-  for (Player *player : players) {
-    delete player;
-  }
-}
-
-int Ludo::getPlayer(LudoColor color) {
-  switch (color) {
-  case LudoColor::red:
-    return 0;
-  case LudoColor::blue:
-    return 1;
-  case LudoColor::yellow:
-    return 3;
-  case LudoColor::green:
-    return 2;
-  }
-  std::cout << "Something went really wrong in QtLudo::Ludo::getPlayer\n";
-  return -1;
-}
-
-uint8_t Ludo::getPosition(LudoColor color, int position) {
-  uint8_t offset = getOffset(color);
-  return offset + position;
+Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
+  players = {HumanPlayer(LudoColor::red), OneManArmy(LudoColor::blue),
+             YouNeverWalkAlone(LudoColor::green), Killer(LudoColor::yellow)};
+  state.positions = new quint8[config.numberOfPieces];
+  memset(state.positions, 0, config.numberOfPieces);
 }
 
 void Ludo::start() {
-  state->toMove = startingRoll();
-  humanMove = players[getPlayer(state->toMove)]->human;
+  state.toMoveIndex = startingRoll();
+  humanMove = players[state.toMoveIndex].human;
 }
 
-uint8_t Ludo::findMove(Player *player, uint8_t dieRoll) {
-  if (player->human)
+const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
+  if (players[playerIndex].human)
     return 255;
-  AIPlayer *bot = (AIPlayer *)player;
-  uint8_t offset = getOffset(state->toMove);
-  uint8_t pieceToMove = bot->decide(state->positions, dieRoll, config, offset);
-  uint8_t totalPiece = getPosition(state->toMove, pieceToMove);
-  return totalPiece;
+
+  AIPlayer* bot = (AIPlayer*)&players[playerIndex];
+  quint8 offset = playerIndex * config.numberOfPiecesPerPlayer;
+  quint8 pieceToMove = bot->decide(state.positions, dieRoll, config, offset);
+  quint8 figure = pieceToMove + offset;
+  return figure;
 }
 
-void Ludo::applyMove(uint8_t totalPiece, uint8_t dieRoll) {
-  bool noMovesPossible = totalPiece == 255;
-  LudoColor currentColor = state->toMove++;
+void Ludo::applyMove(const quint8 playerIndex, const quint8 figure, const quint8 dieRoll) {
+  bool noMovesPossible = figure == 255;
   if (noMovesPossible) {
     return;
   }
-  bool home = state->positions[totalPiece] < 4;
+  bool home = state.positions[figure] == 0;
   if (home) {
     state->positions[totalPiece] = 4;
   } else {
     state->positions[totalPiece] += dieRoll;
   }
-  uint8_t offset = getOffset(currentColor);
-  uint8_t *positions = state->positions;
+  quint8 offset = getOffset(currentColor);
+  quint8 *positions = state->positions;
   // Are we beating another piece
   for (int i = 0; i < config.numberOfPieces; i++) {
     bool ownPiece = i - offset < config.numberOfPiecesPerPlayer;
@@ -83,7 +51,7 @@ void Ludo::applyMove(uint8_t totalPiece, uint8_t dieRoll) {
 
 LudoColor Ludo::startingRoll() {
   uint32_t seed = std::time(0);
-  uint8_t bestRoll = 0;
+  quint8 bestRoll = 0;
   int bestIndex = -1;
   const int redIndex = 0;
   const int blueIndex = 1;
@@ -91,7 +59,7 @@ LudoColor Ludo::startingRoll() {
   const int yellowIndex = 3;
 
   for (int dieIndex = 0; dieIndex < config.numberOfPlayers; dieIndex++) {
-    uint8_t currentRoll = roll(seed++);
+    quint8 currentRoll = roll(seed++);
     if (currentRoll > bestRoll) {
       bestIndex = dieIndex;
     }
@@ -112,7 +80,7 @@ LudoColor Ludo::startingRoll() {
   }
 }
 
-uint8_t Ludo::roll(uint32_t seed) {
+quint8 Ludo::roll(uint32_t seed) {
   int random = rand_r(&seed);
   return 1 + random % 6;
 }

@@ -29,32 +29,4 @@ const char* printLudoColor(LudoColor color){
     }
     return 0;
 }
-
-uint8_t getPiece(LudoColor color, int index) {
-  if (index > 4 - 1) {
-    throw std::invalid_argument("Piece index out of range");
-  }
-  switch (color) {
-  case LudoColor::red:
-    return index;
-  case LudoColor::green:
-    return index + greenOffset;
-  case LudoColor::blue:
-    return index + blueOffset;
-  case LudoColor::yellow:
-    return index + yellowOffset;
-  }
-  throw std::invalid_argument(
-      "Color should be red, green, blue or yellow from enum LudoColor");
-}
-
-uint8_t getOffset(LudoColor color){
-    switch(color){
-        case LudoColor::red: return 0;
-        case LudoColor::green: return greenOffset;
-        case LudoColor::blue: return blueOffset;
-        case LudoColor::yellow: return yellowOffset;
-    }
-    return 0;
-}
 } // namespace QtLudo

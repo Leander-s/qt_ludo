@@ -5,14 +5,16 @@
 #include <stdint.h>
 
 namespace QtLudo {
+// Ludo Color
 enum LudoColor { red, blue, yellow, green };
 
 const char *printLudoColor(LudoColor color);
 
 LudoColor operator++(LudoColor &color, int);
+// Ludo Color
 
 struct GameState {
   quint8 *positions;
-  LudoColor toMove;
+  quint8 toMoveIndex;
 };
 } // namespace QtLudo

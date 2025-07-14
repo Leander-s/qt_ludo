@@ -9,7 +9,9 @@ Map::Map(const QString path) {
     config.numberOfPieces = 16;
 
     posCoordMap = positionMappings;
+    std::cout << "Generating paths\n";
     paths = genDefaultPaths();
+    std::cout << "Saving map\n";
     if (!saveMap(QString("defaultMap.map"))) {
       std::cout << "Saving map failed\n";
     }
@@ -18,6 +20,10 @@ Map::Map(const QString path) {
 
 const QVector2D &Map::getCoords(const quint8 figure, const quint8 index) const {
   return posCoordMap[getTotalIndex(figure, index)];
+}
+
+const QVector2D &Map::getCoords(const quint8 totalFigure) const {
+  return posCoordMap[totalFigure];
 }
 
 const quint8 Map::getTotalIndex(const quint8 figure, const quint8 index) const {
@@ -32,6 +38,7 @@ bool Map::saveMap(const QString path) {
     return false;
   }
 
+  file.startTransaction();
   QDataStream out(&file);
   out.setVersion(QDataStream::Qt_6_5);
 

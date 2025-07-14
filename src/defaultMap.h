@@ -1,6 +1,7 @@
 #pragma once
 #include <QVector2D>
 #include <QVector>
+#include <iostream>
 
 namespace QtLudo {
 // Default map
@@ -115,33 +116,5 @@ const QVector<QVector2D> positionMappings = {
     QVector2D(0.0f, 1.0f),      // 95
 };
 
-QVector<QVector<quint8>> genDefaultPaths(){
-    QVector<quint8> Yards = {0, 4, 8, 12};
-
-    QVector<quint8> Starts = {16, 30, 44, 58};
-
-    QVector<quint8> Homes = {72, 78, 84, 90};
-
-    const qint8 defaultNumberOfPlayers = 4;
-    const qint8 defaultNumberOfPiecesPerPlayer = 4;
-    const qint8 defaultPathLength = 63;
-
-    QVector<QVector<quint8>> paths;
-    paths.reserve(defaultNumberOfPlayers * defaultNumberOfPiecesPerPlayer);
-
-    for(int i = 0; i < defaultNumberOfPlayers; i++){
-        for(int j = 0; j < defaultNumberOfPiecesPerPlayer; j++){
-            int pieceIndex = i + j;
-            paths[pieceIndex].push_back(Yards[i] + j);
-            // -6 for home spaces and -1 for yard space
-            for(int k = 0; k < defaultPathLength - 6 - 1; k++){
-                paths[pieceIndex].push_back(Starts[i] + k);
-            }
-            for(int k = 0; k < 6; k++){
-                paths[pieceIndex].push_back(Homes[i] + k);
-            }
-        }
-    }
-    return paths;
-};
+QVector<QVector<quint8>> genDefaultPaths();
 } // namespace QtLudo

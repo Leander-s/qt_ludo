@@ -1,11 +1,13 @@
 #pragma once
-#include "GameOpenGLWidget.h"
 #include "Game.h"
+#include "GameOpenGLWidget.h"
+#include "Map.h"
 #include "PauseMenuWidget.h"
-#include <QWidget>
-#include <QStackedLayout>
 #include <QSizePolicy>
+#include <QStackedLayout>
 #include <QTimer>
+#include <QWidget>
+#include <memory>
 
 namespace QtLudo {
 class GameWidget : public QWidget {
@@ -16,10 +18,11 @@ public:
   void startGame();
 
 private:
-  GameOpenGLWidget *openglwidget;
-  PauseMenuWidget *pausemenu;
+  std::shared_ptr<GameOpenGLWidget> openglwidget;
+  std::shared_ptr<PauseMenuWidget> pausemenu;
+  std::shared_ptr<Map> map;
+  std::unique_ptr<Ludo> game;
   bool paused;
-  Ludo *game;
   MapConfig config;
   uint8_t lastDieRoll;
 

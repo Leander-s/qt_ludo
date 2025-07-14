@@ -11,7 +11,7 @@ file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
 file(GLOB UI "${CMAKE_CURRENT_SOURCE_DIR}/src/*.ui")
 
-message("Using these sources ${SOURCES}")
+# message("Using these sources ${SOURCES}")
 
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)

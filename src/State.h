@@ -14,7 +14,7 @@ LudoColor operator++(LudoColor &color, int);
 // Ludo Color
 
 struct GameState {
-  quint8 *positions;
+  quint8* positions;
   quint8 toMoveIndex;
 };
 } // namespace QtLudo

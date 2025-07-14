@@ -1,6 +1,7 @@
 #pragma once
-#include "ModelUtil.h"
 #include "GLGameObject.h"
+#include "Map.h"
+#include "ModelUtil.h"
 #include "State.h"
 #include <QImage>
 #include <QKeyEvent>
@@ -21,15 +22,14 @@ class GameOpenGLWidget : public QOpenGLWidget,
 public:
   explicit GameOpenGLWidget(QWidget *parent = nullptr);
   ~GameOpenGLWidget();
-  void initializeGame(MapConfig newConfig, GameState *state);
+  void initializeGame(Map *_map, GameState *_state);
   void updateAllPositions();
-  void updatePosition(LudoColor color, int index);
+  void updatePosition(const quint8 totalFigureIndex);
 
 protected:
   void initializeGL() override;
-  void resizeGL(int w, int h) override;
+  void resizeGL(const int w, const int h) override;
   void paintGL() override;
-  // void keyPressEvent(QKeyEvent *event) override;
   void initializeGameObject(GameObject *gameObject);
 
   /*
@@ -38,17 +38,16 @@ signals:
   */
 
 private:
-  QVector2D positionToCoords(LudoColor color, uint8_t position,
-                             float tileSize = 1.0f);
   std::vector<GameObject *> createObjects();
-  GameObject *createBoard(float tileSize);
-  GameObject *createFigure(float tileSize, LudoColor color);
-
+  GameObject *createBoard();
+  GameObject *createFigure(LudoColor color);
   QOpenGLTexture *loadTexture(const char *path);
+
   QOpenGLShaderProgram *shaderProgram;
   std::vector<Model> models;
   std::vector<GameObject *> gameObjects;
   GameState *gameState;
+  Map *map;
   MapConfig config;
 };
 } // namespace QtLudo

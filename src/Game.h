@@ -4,6 +4,7 @@
 #include "ModelUtil.h"
 #include "Players.h"
 #include "State.h"
+#include <memory>
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
 #include <stdlib.h>
@@ -13,7 +14,9 @@ namespace QtLudo {
 // This should be in a config file
 class Ludo {
 public:
-  Ludo(const Map *map);
+  Ludo(const Map *_map);
+  Ludo();
+  ~Ludo();
   void start();
   const quint8 findMove(const quint8 playerIndex, const quint8 dieRoll);
   void applyMove(const quint8 playerIndex, const quint8 figure, const quint8 dieRoll);

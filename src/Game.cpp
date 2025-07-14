@@ -8,6 +8,10 @@ Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
   memset(state.positions, 0, config.numberOfPieces);
 }
 
+Ludo::~Ludo(){
+    delete state.positions;
+}
+
 void Ludo::start() {
   state.toMoveIndex = startingRoll();
   humanMove = players[state.toMoveIndex].human;
@@ -31,57 +35,41 @@ void Ludo::applyMove(const quint8 playerIndex, const quint8 figure, const quint8
   }
   bool home = state.positions[figure] == 0;
   if (home) {
-    state->positions[totalPiece] = 4;
+    state.positions[figure] = 4;
   } else {
-    state->positions[totalPiece] += dieRoll;
+    state.positions[figure] += dieRoll;
   }
-  quint8 offset = getOffset(currentColor);
-  quint8 *positions = state->positions;
+  quint8 offset = playerIndex * config.numberOfPiecesPerPlayer;
   // Are we beating another piece
   for (int i = 0; i < config.numberOfPieces; i++) {
     bool ownPiece = i - offset < config.numberOfPiecesPerPlayer;
     if (ownPiece) {
       continue;
     }
-    if (positions[i] == positions[totalPiece]) {
-      positions[i] = i % config.numberOfPiecesPerPlayer;
+    if (state.positions[i] == state.positions[figure]) {
+      state.positions[i] = 0;
     }
   }
 }
 
-LudoColor Ludo::startingRoll() {
-  uint32_t seed = std::time(0);
+const quint8 Ludo::startingRoll() {
+  quint32 seed = std::time(0);
   quint8 bestRoll = 0;
   int bestIndex = -1;
-  const int redIndex = 0;
-  const int blueIndex = 1;
-  const int greenIndex = 2;
-  const int yellowIndex = 3;
 
   for (int dieIndex = 0; dieIndex < config.numberOfPlayers; dieIndex++) {
     quint8 currentRoll = roll(seed++);
     if (currentRoll > bestRoll) {
       bestIndex = dieIndex;
+      bestRoll = currentRoll;
     }
   }
 
-  switch (bestIndex) {
-  case redIndex:
-    return LudoColor::red;
-  case blueIndex:
-    return LudoColor::blue;
-  case greenIndex:
-    return LudoColor::green;
-  case yellowIndex:
-    return LudoColor::yellow;
-  default:
-    std::cout << "Something went wrong in startingRoll\n";
-    return LudoColor::red;
-  }
+  return bestIndex;
 }
 
-quint8 Ludo::roll(uint32_t seed) {
-  int random = rand_r(&seed);
+const quint8 Ludo::roll(quint32 seed) {
+  const int random = rand_r(&seed);
   return 1 + random % 6;
 }
 } // namespace QtLudo

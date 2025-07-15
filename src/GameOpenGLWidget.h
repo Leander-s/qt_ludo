@@ -21,7 +21,7 @@ class GameOpenGLWidget : public QOpenGLWidget,
 public:
   explicit GameOpenGLWidget(QWidget *parent = nullptr);
   ~GameOpenGLWidget();
-  void initializeGame(MapConfig newConfig, GameState *state);
+  void initializeGame(MapConfig _config, GameState *state);
   void updateAllPositions();
   void updatePosition(LudoColor color, int index);
 

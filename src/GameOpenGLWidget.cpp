@@ -142,10 +142,10 @@ void GameOpenGLWidget::paintGL() {
   shaderProgram->release();
 }
 
-void GameOpenGLWidget::updatePosition(const quint8 totalFigureIndex) {
-  quint8 position = gameState->positions[totalFigureIndex];
-  QVector2D coords = map->getCoords(totalFigureIndex, position);
-  GameObject *object = gameObjects[totalFigureIndex];
+void GameOpenGLWidget::updatePosition(const quint8 figure) {
+  quint8 position = gameState->positions[figure];
+  QVector2D coords = map->getCoords(figure, position);
+  GameObject *object = gameObjects[figure];
   object->setPosition(QVector3D(coords.x(), 0.0f, coords.y()));
 }
 

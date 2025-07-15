@@ -8,12 +8,56 @@ class Controller : public QObject {
 public slots:
 };
 
+enum Strategy { human, oneManArmy, youNeverWalkAlone, pacifist, killer };
+
+struct aiParameters {
+  const quint8 preferredFigurePosition;
+  const int figurePositionBias;
+  const int aggressionBias;
+  const int defenseBias;
+  const int willToLive;
+};
+
+const aiParameters oneManArmyPreset{
+    .preferredFigurePosition = 0,
+    .figurePositionBias = 100,
+    .aggressionBias = 50,
+    .defenseBias = 0,
+    .willToLive = 100,
+};
+
+const aiParameters youNeverWalkAlonePreset{
+    .preferredFigurePosition = 255,
+    .figurePositionBias = 100,
+    .aggressionBias = 50,
+    .defenseBias = 100,
+    .willToLive = 100,
+};
+
+const aiParameters pacifistPreset{
+    .preferredFigurePosition = 0,
+    .figurePositionBias = 10,
+    .aggressionBias = -100,
+    .defenseBias = 100,
+    .willToLive = 100,
+};
+
+const aiParameters killerPreset{
+    .preferredFigurePosition = 255,
+    .figurePositionBias = 10,
+    .aggressionBias = 100,
+    .defenseBias = 0,
+    .willToLive = 100,
+};
+
 class Player {
 public:
   Player(const LudoColor _color);
-  const std::vector<bool> getPossibleMoves(const quint8 *positions,
-                                           const quint8 roll,
-                                           const MapConfig &config) const;
+  const QVector<bool> getPossibleMoves(const quint8 *positions,
+                                       const quint8 roll,
+                                       const MapConfig &config) const;
+  void sortPositions(const quint8 *playerPositions, quint8 *sortedPositions,
+                     const MapConfig &config) const;
   bool moving;
   bool human;
   LudoColor color;
@@ -26,43 +70,14 @@ public:
 
 class AIPlayer : public Player {
 public:
-  AIPlayer(const LudoColor _color);
-  virtual const quint8 decide(const quint8 *positions, const quint8 roll,
-                              const MapConfig &config,
-                              const quint8 playerOffset) const {
-    return 0;
-  }
-};
-
-class OneManArmy : public AIPlayer {
-public:
-  OneManArmy(const LudoColor _color) : AIPlayer(_color) {};
+  AIPlayer(const LudoColor _color, const aiParameters &_params);
   const quint8 decide(const quint8 *positions, const quint8 roll,
-                      const MapConfig &config,
-                      const quint8 playerOffset) const override;
-};
+                      const MapConfig &config, const quint8 playerOffset) const;
+  const int calculateScore(const quint8 *positions, const quint8 playerPosition,
+                           const quint8 sortedPosition, const quint8 roll,
+                           const MapConfig &config,
+                           const quint8 playerOffset) const;
 
-class YouNeverWalkAlone : public AIPlayer {
-public:
-  YouNeverWalkAlone(const LudoColor _color) : AIPlayer(_color) {};
-  const quint8 decide(const quint8 *positions, const quint8 roll,
-                      const MapConfig &config,
-                      const quint8 playerOffset) const override;
-};
-
-class Pacifist : public AIPlayer {
-public:
-  Pacifist(const LudoColor _color) : AIPlayer(_color) {};
-  const quint8 decide(const quint8 *positions, const quint8 roll,
-                      const MapConfig &config,
-                      const quint8 playerOffset) const override;
-};
-
-class Killer : public AIPlayer {
-public:
-  Killer(const LudoColor _color) : AIPlayer(_color) {};
-  const quint8 decide(const quint8 *positions, const quint8 roll,
-                      const MapConfig &config,
-                      const quint8 playerOffset) const override;
+  const aiParameters params;
 };
 } // namespace QtLudo

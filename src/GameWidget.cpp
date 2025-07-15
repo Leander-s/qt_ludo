@@ -62,7 +62,7 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   const Player *player = &game->players[game->state.toMoveIndex];
   const quint8 playerIndex = game->state.toMoveIndex;
   const quint8 offset = game->getFigure(playerIndex, 0);
-  const std::vector<bool> possibleMoves = player->getPossibleMoves(
+  const QVector<bool> possibleMoves = player->getPossibleMoves(
       game->state.positions + offset, lastDieRoll, game->config);
 
   bool canMove = false;
@@ -136,14 +136,12 @@ void GameWidget::updateGameState() {
   }
 
   const quint8 *positions = game->state.positions;
-  LOG("Finding move");
   const quint8 playerFigure = game->findMove(playerIndex, lastDieRoll);
-  LOG("Applying move");
   game->applyMove(playerIndex, playerFigure, lastDieRoll);
-  LOG("Getting figure");
   const quint8 figure = game->getFigure(playerIndex, playerFigure);
 
-  LOG("Updating position");
+  LOG("Updating position " << (int)figure << " of player " << (int)playerIndex
+                           << " with " << (int)game->state.positions[figure]);
   openglwidget->updatePosition(figure);
   updateGameState();
 }

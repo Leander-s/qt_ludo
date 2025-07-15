@@ -1,11 +1,11 @@
 #include "Players.h"
 
 namespace QtLudo {
-const std::vector<bool>
-Player::getPossibleMoves(const quint8 *playerPositions, const quint8 roll,
-                         const MapConfig &config) const {
+const QVector<bool> Player::getPossibleMoves(const quint8 *playerPositions,
+                                             const quint8 roll,
+                                             const MapConfig &config) const {
   bool sixRolled = roll == 6;
-  std::vector<bool> possibleMoves(config.numberOfPiecesPerPlayer, false);
+  QVector<bool> possibleMoves(config.numberOfPiecesPerPlayer, false);
 
   for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
     // Check if there is enough space to move my piece
@@ -32,131 +32,100 @@ Player::getPossibleMoves(const quint8 *playerPositions, const quint8 roll,
   return possibleMoves;
 }
 
+void Player::sortPositions(const quint8 *playerPositions,
+                           quint8 *sortedPositions,
+                           const MapConfig &config) const {
+  // create temp buffer for positions
+  quint8 tempPositions[config.numberOfPiecesPerPlayer];
+  memcpy((void *)tempPositions, (void *)playerPositions,
+         config.numberOfPiecesPerPlayer);
+
+  // assign indices for sortedPositions
+  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
+    sortedPositions[i] = i;
+  }
+
+  // sort sortedPositions
+  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
+    for (int j = i + 1; j < config.numberOfPiecesPerPlayer; j++) {
+      if (tempPositions[i] < tempPositions[j]) {
+        // Swap using xor, saw it in a yt short :)
+        sortedPositions[i] = sortedPositions[i] ^ sortedPositions[j];
+        sortedPositions[j] = sortedPositions[i] ^ sortedPositions[j];
+        sortedPositions[i] = sortedPositions[i] ^ sortedPositions[j];
+
+        tempPositions[i] = tempPositions[i] ^ tempPositions[j];
+        tempPositions[j] = tempPositions[i] ^ tempPositions[j];
+        tempPositions[i] = tempPositions[i] ^ tempPositions[j];
+      }
+    }
+  }
+}
+
 Player::Player(const LudoColor _color) : color(_color) {};
 
 HumanPlayer::HumanPlayer(const LudoColor _color) : Player(_color) {
   human = true;
 };
 
-AIPlayer::AIPlayer(const LudoColor _color) : Player(_color) { human = false; };
+AIPlayer::AIPlayer(const LudoColor _color, const aiParameters &_params)
+    : Player(_color), params(_params) {
+  human = false;
+};
 
-const quint8 OneManArmy::decide(const quint8 *positions, const quint8 roll,
-                                const MapConfig &config,
-                                const quint8 playerOffset) const {
-  const std::vector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config);
-  const quint8 *playerPositions = positions + playerOffset;
-  int bestScore = 0x80000000; // minimum integer value
-  quint8 bestScoreIndex = 255;
-  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
-    if (!possibleMoves[i]) {
-      continue;
-    }
-    int score = playerPositions[i];
-    if (score > bestScore) {
-      bestScore = score;
-      bestScoreIndex = i;
-    }
-  }
-  return bestScoreIndex;
-}
+const int AIPlayer::calculateScore(const quint8 *positions,
+                                   const quint8 playerPosition,
+                                   const quint8 sortedPosition,
+                                   const quint8 roll, const MapConfig &config,
+                                   const quint8 playerOffset) const {
+  int score = (int)(params.preferredFigurePosition == sortedPosition) *
+              params.figurePositionBias;
 
-const quint8 YouNeverWalkAlone::decide(const quint8 *positions,
-                                       const quint8 roll,
-                                       const MapConfig &config,
-                                       const quint8 playerOffset) const {
-  const std::vector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config);
-  const quint8 *playerPositions = positions + playerOffset;
-  int bestScore = 0x80000000; // minimum integer value
-  quint8 bestScoreIndex = 255;
-  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
-    if (!possibleMoves[i]) {
-      continue;
+  bool otherPieceOnSquare = false;
+  for (int j = 0; j < config.numberOfPieces; j++) {
+    bool ownPiece = false;
+    if (j >= playerOffset && j < playerOffset + 4) {
+      ownPiece = true;
     }
-    int score = config.lengthOfPath - playerPositions[i];
-    if (score > bestScore) {
-      bestScore = score;
-      bestScoreIndex = i;
-    }
-    bool otherPieceOnSquare = false;
-    for (int j = 0; j < config.numberOfPieces; j++) {
-      if (j >= playerOffset && j < playerOffset + 4) {
+    quint8 nextPos = playerPosition + roll;
+    if (positions[j] == nextPos) {
+      if (ownPiece) {
+        score += params.defenseBias;
         continue;
       }
-      int nextPos = playerPositions[i] + roll;
-      if (positions[j] == nextPos) {
-        if (otherPieceOnSquare) {
-          // This means there is a block ahead!!
-          score -= config.lengthOfPath;
-        } else {
-          otherPieceOnSquare = true;
-          score += 10;
-        }
+      if (!otherPieceOnSquare) {
+        otherPieceOnSquare = true;
+        score += params.aggressionBias;
+        continue;
       }
+      // This means there is a block ahead!!
+      // subtract aggressionBias again and then subtract willToLive param
+      score -= params.aggressionBias;
+      score -= params.willToLive;
     }
   }
-  return bestScoreIndex;
+  return score;
 }
-const quint8 Pacifist::decide(const quint8 *positions, const quint8 roll,
+
+const quint8 AIPlayer::decide(const quint8 *positions, const quint8 roll,
                               const MapConfig &config,
                               const quint8 playerOffset) const {
-  const std::vector<bool> possibleMoves =
+  const QVector<bool> possibleMoves =
       getPossibleMoves(positions + playerOffset, roll, config);
   const quint8 *playerPositions = positions + playerOffset;
   int bestScore = 0x80000000; // minimum integer value
   quint8 bestScoreIndex = 255;
-  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
-    if (!possibleMoves[i]) {
-      continue;
-    }
-    int score = playerPositions[i];
-    for (int j = 0; j < config.numberOfPieces; j++) {
-      if (j >= playerOffset && j < playerOffset + 4) {
-        continue;
-      }
-      int nextPos = playerPositions[i] + roll;
-      if (positions[j] == nextPos) {
-        score -= config.lengthOfPath;
-      }
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      bestScoreIndex = i;
-    }
-  }
-  return bestScoreIndex;
-}
 
-const quint8 Killer::decide(const quint8 *positions, const quint8 roll,
-                            const MapConfig &config,
-                            const quint8 playerOffset) const {
-  std::vector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config);
-  const quint8 *playerPositions = positions + playerOffset;
-  int bestScore = 0x80000000; // minimum integer value
-  quint8 bestScoreIndex = 255;
+  // get sorted positions for params.preferredFigurePosition
+  quint8 sortedPositions[config.numberOfPiecesPerPlayer];
+  sortPositions(playerPositions, sortedPositions, config);
+
   for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
     if (!possibleMoves[i]) {
       continue;
     }
-    int score = playerPositions[i];
-    bool otherPieceTargeted = false;
-    for (int j = 0; j < config.numberOfPieces; j++) {
-      if (j >= playerOffset && j < playerOffset + 4) {
-        continue;
-      }
-      int nextPos = playerPositions[i] + roll;
-      if (positions[j] == nextPos) {
-        if (otherPieceTargeted) {
-          // This means there is a block ahead!!
-          score -= 2 * config.lengthOfPath;
-        } else {
-          otherPieceTargeted = true;
-          score += config.lengthOfPath;
-        }
-      }
-    }
+    int score = calculateScore(positions, playerPositions[i],
+                               sortedPositions[i], roll, config, playerOffset);
     if (score > bestScore) {
       bestScore = score;
       bestScoreIndex = i;

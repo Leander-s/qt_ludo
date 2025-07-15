@@ -1,9 +1,12 @@
 #include "Game.h"
+#include "Players.h"
 
 namespace QtLudo {
 Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
-  players = {HumanPlayer(LudoColor::red), OneManArmy(LudoColor::blue),
-             YouNeverWalkAlone(LudoColor::green), Killer(LudoColor::yellow)};
+  players = {HumanPlayer(LudoColor::red),
+             AIPlayer(LudoColor::blue, oneManArmyPreset),
+             AIPlayer(LudoColor::green, youNeverWalkAlonePreset),
+             AIPlayer(LudoColor::yellow, killerPreset)};
   state.positions = new quint8[config.numberOfPieces];
   memset(state.positions, 0, config.numberOfPieces);
 }
@@ -23,8 +26,8 @@ const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
   const quint8 offset = getFigure(playerIndex, 0);
   const quint8 pieceToMove =
       bot->decide(state.positions + offset, dieRoll, config, offset);
-  const quint8 figure = getFigure(playerIndex, pieceToMove);
-  return figure;
+  LOG("Decided on piece : " << (int)pieceToMove);
+  return pieceToMove;
 }
 
 void Ludo::applyMove(const quint8 playerIndex, const quint8 playerFigure,
@@ -32,6 +35,7 @@ void Ludo::applyMove(const quint8 playerIndex, const quint8 playerFigure,
   const bool noMovesPossible = playerFigure == 255;
   if (noMovesPossible) {
     state.toMoveIndex = (state.toMoveIndex + 1) % config.numberOfPlayers;
+    LOG("No possible moves...");
     return;
   }
   const bool home = state.positions[playerFigure] == 0;

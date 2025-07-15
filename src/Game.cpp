@@ -1,6 +1,4 @@
 #include "Game.h"
-#include "Players.h"
-#include <chrono>
 
 namespace QtLudo {
 Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
@@ -11,7 +9,11 @@ Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
       AIPlayer(LudoColor::green, youNeverWalkAlonePreset),
   };
   state.positions = new quint8[config.numberOfPieces];
-  memset((void *)state.positions, 0, config.numberOfPieces);
+  memset((void*)state.positions, 0, config.numberOfPieces);
+  for (int i = 0; i < config.numberOfPieces; i++) {
+    std::cout << (int)state.positions[i] << ", ";
+  }
+  LOG("");
 }
 
 Ludo::~Ludo() { delete state.positions; }
@@ -21,50 +23,13 @@ void Ludo::start() {
   humanMove = players[state.toMoveIndex].human;
 }
 
-const QVector<bool> Ludo::getPossibleMoves(const quint8 playerIndex,
-                                           const quint8 roll) const {
-  bool sixRolled = roll == 6;
-  QVector<bool> possibleMoves(config.numberOfPiecesPerPlayer, false);
-
-  LOG("Rolled " << (int)roll);
-  LOG("Possible moves are : ");
-  const quint8 *playerPositions = state.positions + getFigure(playerIndex, 0);
-  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
-    // Check if there is enough space to move my piece
-    bool notTooFar = (config.lengthOfPath - playerPositions[i]) >= roll;
-    if (!notTooFar) {
-      continue;
-    }
-
-    // Check if I am in home and need to roll a six to move
-    bool inHome = playerPositions[i] == 0;
-    LOG((int)playerPositions[i]);
-    LOG(i << " is home: " << inHome);
-    quint8 futurePos;
-    if (inHome) {
-      if (!sixRolled) {
-        continue;
-      }
-      futurePos = 1;
-    } else {
-      futurePos = playerPositions[i] + roll;
-    }
-
-    // We are here so this move is possible
-    possibleMoves[i] = true;
-    LOG(i);
-  }
-  return possibleMoves;
-}
-
 const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
   if (players[playerIndex].human)
     return 255;
 
   const AIPlayer *bot = (AIPlayer *)&players[playerIndex];
-  const quint8 offset = getFigure(playerIndex, 0);
   const quint8 pieceToMove =
-      bot->decide(state.positions, dieRoll, config, offset);
+      bot->decide(state.positions, dieRoll, config, playerIndex);
   return pieceToMove;
 }
 

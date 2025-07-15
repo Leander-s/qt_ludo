@@ -6,10 +6,10 @@ LudoColor operator++(LudoColor &color, int) {
   case LudoColor::red:
     return color = LudoColor::blue;
   case LudoColor::blue:
-    return color = LudoColor::green;
-  case LudoColor::green:
     return color = LudoColor::yellow;
   case LudoColor::yellow:
+    return color = LudoColor::green;
+  case LudoColor::green:
     return color = LudoColor::red;
   default:
     throw std::invalid_argument("This is not a Ludo color");

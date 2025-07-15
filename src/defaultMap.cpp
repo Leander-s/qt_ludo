@@ -2,9 +2,9 @@
 
 namespace QtLudo {
 QVector<QVector<quint8>> genDefaultPaths() {
-  QVector<quint8> Yards = {0, 4, 8, 12};
+  QVector<quint8> Starts = {0, 14, 28, 42};
 
-  QVector<quint8> Starts = {16, 30, 44, 58};
+  QVector<quint8> Yards = {56, 60, 64, 68};
 
   QVector<quint8> Homes = {72, 78, 84, 90};
 
@@ -21,7 +21,7 @@ QVector<QVector<quint8>> genDefaultPaths() {
       paths[pieceIndex].push_back(Yards[i] + j);
       // -6 for home spaces and -1 for yard space
       for (int k = 0; k < defaultPathLength - 6 - 1; k++) {
-        paths[pieceIndex].push_back(Starts[i] + k);
+        paths[pieceIndex].push_back((Starts[i] + k) % 56);
       }
       for (int k = 0; k < 6; k++) {
         paths[pieceIndex].push_back(Homes[i] + k);

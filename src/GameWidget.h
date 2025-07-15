@@ -20,11 +20,11 @@ public:
 private:
   GameOpenGLWidget *openglwidget;
   std::shared_ptr<PauseMenuWidget> pausemenu;
-  std::unique_ptr<Ludo> game;
+  Ludo *game;
   Map map;
   bool paused;
   MapConfig config;
-  uint8_t lastDieRoll;
+  quint32 lastDieRoll;
 
   void keyPressEvent(QKeyEvent *event) override;
   void updateGameState();

@@ -1,6 +1,49 @@
 #include "Players.h"
 
 namespace QtLudo {
+const QVector<bool> Player::getPossibleMoves(const quint8 *positions,
+                                             const quint8 playerOffset,
+                                             const quint8 roll,
+                                             const MapConfig &config) const {
+  bool sixRolled = roll == 6;
+  QVector<bool> possibleMoves(config.numberOfPiecesPerPlayer, false);
+
+  LOG("Rolled " << (int)roll);
+  LOG("Possible moves are : ");
+  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
+    // Check if there is enough space to move my piece
+    int playerPosition = i + playerOffset;
+    bool notTooFar = (config.lengthOfPath - positions[playerPosition]) >= roll;
+    std::cout << "Game state : ";
+    for (int i = 0; i < config.numberOfPieces; i++) {
+      std::cout << (int)positions[i] << ", ";
+    }
+    std::cout << std::endl;
+    std::cout << "Player position: " << positions[playerPosition] << std::endl;
+    if (!notTooFar) {
+      continue;
+    }
+
+    // Check if I am in home and need to roll a six to move
+    bool inHome = positions[playerPosition] == 0;
+    LOG((int)positions[playerPosition]);
+    LOG(i << " is home: " << inHome);
+    quint8 futurePos;
+    if (inHome) {
+      if (!sixRolled) {
+        continue;
+      }
+      futurePos = 1;
+    } else {
+      futurePos = positions[playerPosition] + roll;
+    }
+
+    // We are here so this move is possible
+    possibleMoves[i] = true;
+    LOG(i);
+  }
+  return possibleMoves;
+}
 
 void Player::sortPositions(const quint8 *playerPositions,
                            quint8 *sortedPositions,
@@ -79,13 +122,15 @@ const int AIPlayer::calculateScore(const quint8 *positions,
 
 const quint8 AIPlayer::decide(const quint8 *positions, const quint8 roll,
                               const MapConfig &config,
-                              const quint8 playerOffset) const {
+                              const quint8 playerIndex) const {
   LOG("Rolled a " << (int)roll);
+  const quint8 playerOffset = playerIndex * config.numberOfPiecesPerPlayer;
   const QVector<bool> possibleMoves =
-      getPossibleMoves(positions + playerOffset, roll, config);
-  const quint8 *playerPositions = positions + playerOffset;
+      getPossibleMoves(positions, playerOffset, roll, config);
   int bestScore = 0x80000000; // minimum integer value
   quint8 bestScoreIndex = 255;
+
+  const quint8 *playerPositions = positions + playerOffset;
 
   // get sorted positions for params.preferredFigurePosition
   quint8 sortedPositions[config.numberOfPiecesPerPlayer];

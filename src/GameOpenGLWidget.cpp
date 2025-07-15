@@ -141,7 +141,7 @@ void GameOpenGLWidget::paintGL() {
   shaderProgram->release();
 }
 
-void GameOpenGLWidget::updatePosition(const quint8 figure, const quint8 position) {
+void GameOpenGLWidget::updatePosition(const quint32 figure, const quint32 position) {
   QVector2D coords = map->getCoords(figure, position);
   GameObject *object = gameObjects[figure];
   object->setPosition(QVector3D(coords.x(), 0.0f, coords.y()));
@@ -156,7 +156,7 @@ std::vector<GameObject *> GameOpenGLWidget::createObjects() {
        playerIndex++) {
     for (int figureIndex = 0; figureIndex < config.numberOfPiecesPerPlayer;
          figureIndex++) {
-      const quint8 totalFigureIndex =
+      const quint32 totalFigureIndex =
           playerIndex * config.numberOfPiecesPerPlayer + figureIndex;
       GameObject *figure = createFigure(color);
 

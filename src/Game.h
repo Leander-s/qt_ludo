@@ -16,11 +16,8 @@ namespace QtLudo {
 class Ludo {
 public:
   Ludo(const Map *_map);
-  Ludo();
   ~Ludo();
   void start();
-  const QVector<bool> getPossibleMoves(const quint8 playerIndex,
-                                       const quint8 roll) const;
   const quint8 findMove(const quint8 playerIndex, const quint8 dieRoll);
   const quint8 applyMove(const quint8 playerIndex, const quint8 playerFigure,
                          const quint8 dieRoll);
@@ -37,7 +34,6 @@ public:
   std::vector<Player> players;
   bool humanMove;
 
-private:
   GameState state;
 };
 } // namespace QtLudo

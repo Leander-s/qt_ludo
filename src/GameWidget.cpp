@@ -7,7 +7,7 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
 
   map.initializeMap();
 
-  game = std::make_unique<Ludo>(Ludo(&map));
+  game = new Ludo(&map);
 
   openglwidget = new GameOpenGLWidget;
   pausemenu = std::make_shared<PauseMenuWidget>(new PauseMenuWidget);
@@ -60,10 +60,11 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   }
 
   const quint8 playerIndex = game->getToMove();
-  const quint8 offset = game->getFigure(playerIndex, 0);
+  const quint8 playerOffset = game->getFigure(playerIndex, 0);
+  Player *player = &game->players[playerIndex];
   LOG("Getting possible moves for roll: " << (int)lastDieRoll);
-  const QVector<bool> possibleMoves = game->getPossibleMoves(
-      playerIndex, lastDieRoll);
+  const QVector<bool> possibleMoves = player->getPossibleMoves(
+      game->state.positions, playerOffset, lastDieRoll, config);
 
   bool canMove = false;
   for (const bool movePossible : possibleMoves) {
@@ -116,7 +117,7 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   if (figure == 255) {
     updateGameState();
   }
-  openglwidget->updatePosition(figure);
+  openglwidget->updatePosition(figure, game->getPosition(figure));
   updateGameState();
 }
 
@@ -132,6 +133,11 @@ void GameWidget::updateGameState() {
   const Player *player = &game->players[playerIndex];
   const LudoColor color = player->color;
   LOG("\n" << printLudoColor(color) << "'s turn");
+  std::cout << "Game state ";
+  for(int i = 0; i < config.numberOfPieces; i++){
+      std::cout << (int)game->state.positions[i] << ", ";
+  }
+  std::cout << std::endl;
   lastDieRoll = game->roll();
   LOG("Rolled " << (int)lastDieRoll);
   if (player->human) {
@@ -150,8 +156,7 @@ void GameWidget::updateGameState() {
   LOG("Updating coords of figure " << (int)figure << " of player "
                                    << (int)playerIndex << " with "
                                    << (int)game->getPosition(figure));
-  openglwidget->updatePosition(figure);
+  openglwidget->updatePosition(figure, game->getPosition(figure));
   updateGameState();
 }
-
 } // namespace QtLudo

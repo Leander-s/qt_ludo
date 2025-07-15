@@ -23,7 +23,7 @@ public:
   explicit GameOpenGLWidget(QWidget *parent = nullptr);
   ~GameOpenGLWidget();
   void initializeGame(Map *_map);
-  void updatePosition(const quint8 figure, const quint8 position);
+  void updatePosition(const quint32 figure, const quint32 position);
 
 protected:
   void initializeGL() override;

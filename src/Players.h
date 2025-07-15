@@ -53,6 +53,10 @@ const aiParameters killerPreset{
 class Player {
 public:
   Player(const LudoColor _color);
+  const QVector<bool> getPossibleMoves(const quint8 *positions,
+                                       const quint8 playerOffset,
+                                       const quint8 roll,
+                                       const MapConfig &config) const;
   void sortPositions(const quint8 *playerPositions, quint8 *sortedPositions,
                      const MapConfig &config) const;
   bool moving;

@@ -42,7 +42,7 @@ AIPlayer::AIPlayer(const LudoColor _color) : Player(_color) { human = false; };
 
 const quint8 OneManArmy::decide(const quint8 *positions, const quint8 roll,
                                 const MapConfig &config,
-                                const quint8 playerOffset) {
+                                const quint8 playerOffset) const {
   const std::vector<bool> possibleMoves =
       getPossibleMoves(positions + playerOffset, roll, config);
   const quint8 *playerPositions = positions + playerOffset;
@@ -64,7 +64,7 @@ const quint8 OneManArmy::decide(const quint8 *positions, const quint8 roll,
 const quint8 YouNeverWalkAlone::decide(const quint8 *positions,
                                        const quint8 roll,
                                        const MapConfig &config,
-                                       const quint8 playerOffset) {
+                                       const quint8 playerOffset) const {
   const std::vector<bool> possibleMoves =
       getPossibleMoves(positions + playerOffset, roll, config);
   const quint8 *playerPositions = positions + playerOffset;
@@ -100,7 +100,7 @@ const quint8 YouNeverWalkAlone::decide(const quint8 *positions,
 }
 const quint8 Pacifist::decide(const quint8 *positions, const quint8 roll,
                               const MapConfig &config,
-                              const quint8 playerOffset) {
+                              const quint8 playerOffset) const {
   const std::vector<bool> possibleMoves =
       getPossibleMoves(positions + playerOffset, roll, config);
   const quint8 *playerPositions = positions + playerOffset;
@@ -130,7 +130,7 @@ const quint8 Pacifist::decide(const quint8 *positions, const quint8 roll,
 
 const quint8 Killer::decide(const quint8 *positions, const quint8 roll,
                             const MapConfig &config,
-                            const quint8 playerOffset) {
+                            const quint8 playerOffset) const {
   std::vector<bool> possibleMoves =
       getPossibleMoves(positions + playerOffset, roll, config);
   const quint8 *playerPositions = positions + playerOffset;

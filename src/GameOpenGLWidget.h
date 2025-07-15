@@ -6,7 +6,7 @@
 #include <QImage>
 #include <QKeyEvent>
 #include <QOpenGLFunctions>
-#include <QOpenGLFunctions_3_3_Core>
+#include <QOpenGLFunctions_3_2_Core>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLWidget>
@@ -16,7 +16,7 @@ namespace QtLudo {
 QOpenGLTexture *loadTexture(const char *path);
 
 class GameOpenGLWidget : public QOpenGLWidget,
-                         protected QOpenGLFunctions_3_3_Core {
+                         protected QOpenGLFunctions_3_2_Core {
   Q_OBJECT
 
 public:

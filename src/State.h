@@ -1,4 +1,8 @@
 #pragma once
+#ifndef NDEBUG 
+#define LOG(x) std::cout << x << std::endl
+#endif
+
 #include <QVector2D>
 #include <iostream>
 #include <stdexcept>

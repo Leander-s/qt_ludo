@@ -13,9 +13,7 @@ void Map::initializeMap(const QString path) {
     config.numberOfPieces = 16;
 
     posCoordMap = positionMappings;
-    std::cout << "Generating paths\n";
     paths = genDefaultPaths();
-    std::cout << "Saving map\n";
     if (!saveMap(QString("defaultMap.map"))) {
       std::cout << "Saving map failed\n";
     }
@@ -25,16 +23,12 @@ void Map::initializeMap(const QString path) {
   initialized = true;
 }
 
-const QVector2D &Map::getCoords(const quint8 figure, const quint8 index) const {
-  return posCoordMap[getTotalIndex(figure, index)];
+const QVector2D Map::getCoords(const quint8 figure, const quint8 position) const {
+  return posCoordMap[getTotalIndex(figure, position)];
 }
 
-const QVector2D &Map::getCoords(const quint8 totalFigure) const {
-  return posCoordMap[totalFigure];
-}
-
-const quint8 Map::getTotalIndex(const quint8 figure, const quint8 index) const {
-  return paths[figure][index];
+const quint8 Map::getTotalIndex(const quint8 figure, const quint8 position) const {
+  return paths[figure][position];
 }
 
 const MapConfig Map::getMapConfig() const { return config; }

@@ -2,6 +2,7 @@
 #include <QVector2D>
 #include <QVector>
 #include <iostream>
+#include "State.h"
 
 namespace QtLudo {
 // Default map

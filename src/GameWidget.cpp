@@ -13,14 +13,11 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   pausemenu = std::make_shared<PauseMenuWidget>(new PauseMenuWidget);
 
   openglwidget->initializeGame(&map, &game->state);
-  std::cout << "Showing opengl widget\n";
   openglwidget->show();
-  std::cout << "Showed opengl widget\n";
   pausemenu->hide();
   paused = false;
   pausemenu->setContentsMargins(0, 0, 0, 0);
 
-  std::cout << "Adding opengl widget\n";
   layout->addWidget(openglwidget);
   layout->addWidget(pausemenu.get());
   pausemenu->raise();
@@ -64,7 +61,7 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
 
   const Player *player = &game->players[game->state.toMoveIndex];
   const quint8 playerIndex = game->state.toMoveIndex;
-  const quint8 offset = playerIndex * config.numberOfPiecesPerPlayer;
+  const quint8 offset = game->getFigure(playerIndex, 0);
   const std::vector<bool> possibleMoves = player->getPossibleMoves(
       game->state.positions + offset, lastDieRoll, game->config);
 
@@ -80,41 +77,41 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
     updateGameState();
     return;
   }
-  quint8 chosenFigure = 255;
+  quint8 playerFigure = 255;
   switch (event->key()) {
   case Qt::Key_1:
     if (!possibleMoves[0]) {
       break;
     }
-    chosenFigure = 0;
+    playerFigure = 0;
     break;
   case Qt::Key_2:
     if (!possibleMoves[1]) {
       break;
     }
-    chosenFigure = 1;
+    playerFigure = 1;
     break;
   case Qt::Key_3:
     if (!possibleMoves[2]) {
       break;
     }
-    chosenFigure = 2;
+    playerFigure = 2;
     break;
   case Qt::Key_4:
     if (!possibleMoves[3]) {
       break;
     }
-    chosenFigure = 3;
+    playerFigure = 3;
     break;
   }
 
-  if(chosenFigure == 255){
-      return;
+  if (playerFigure == 255) {
+    return;
   }
 
-  game->applyMove(playerIndex, chosenFigure, lastDieRoll);
-  quint8 totalChosenFigure = map.getTotalIndex(chosenFigure, playerIndex);
-  openglwidget->updatePosition(totalChosenFigure);
+  game->applyMove(playerIndex, playerFigure, lastDieRoll);
+  quint8 figure = game->getFigure(playerIndex, playerFigure);
+  openglwidget->updatePosition(figure);
   updateGameState();
 }
 
@@ -129,21 +126,25 @@ void GameWidget::updateGameState() {
   const quint8 playerIndex = game->state.toMoveIndex;
   const Player *player = &game->players[playerIndex];
   const LudoColor color = player->color;
-  std::cout << printLudoColor(color) << "'s turn\n";
+  LOG(printLudoColor(color) << "'s turn\n");
   const quint32 seed = std::time(0);
   lastDieRoll = game->roll(seed);
+  LOG("Rolled");
   if (player->human) {
     game->humanMove = true;
     return;
   }
 
   const quint8 *positions = game->state.positions;
-  const quint8 figureIndex = game->findMove(playerIndex, lastDieRoll);
-  game->applyMove(playerIndex, figureIndex, lastDieRoll);
-  const quint8 offset = playerIndex * config.numberOfPiecesPerPlayer;
-  const quint8 totalFigureIndex = offset + figureIndex;
+  LOG("Finding move");
+  const quint8 playerFigure = game->findMove(playerIndex, lastDieRoll);
+  LOG("Applying move");
+  game->applyMove(playerIndex, playerFigure, lastDieRoll);
+  LOG("Getting figure");
+  const quint8 figure = game->getFigure(playerIndex, playerFigure);
 
-  openglwidget->updatePosition(totalFigureIndex);
+  LOG("Updating position");
+  openglwidget->updatePosition(figure);
   updateGameState();
 }
 

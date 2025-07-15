@@ -18,8 +18,7 @@ class Map {
 public:
   Map();
   void initializeMap(const QString path = "default");
-  const QVector2D &getCoords(const quint8 figure, const quint8 index) const;
-  const QVector2D &getCoords(const quint8 totalFigure) const;
+  const QVector2D getCoords(const quint8 figure, const quint8 index) const;
   const quint8 getTotalIndex(const quint8 figure, const quint8 index) const;
   const MapConfig getMapConfig() const;
 

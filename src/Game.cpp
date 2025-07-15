@@ -8,9 +8,7 @@ Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
   memset(state.positions, 0, config.numberOfPieces);
 }
 
-Ludo::~Ludo(){
-    delete state.positions;
-}
+Ludo::~Ludo() { delete state.positions; }
 
 void Ludo::start() {
   state.toMoveIndex = startingRoll();
@@ -21,35 +19,46 @@ const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
   if (players[playerIndex].human)
     return 255;
 
-  AIPlayer* bot = (AIPlayer*)&players[playerIndex];
-  quint8 offset = playerIndex * config.numberOfPiecesPerPlayer;
-  quint8 pieceToMove = bot->decide(state.positions, dieRoll, config, offset);
-  quint8 figure = pieceToMove + offset;
+  const AIPlayer *bot = (AIPlayer *)&players[playerIndex];
+  const quint8 offset = getFigure(playerIndex, 0);
+  const quint8 pieceToMove =
+      bot->decide(state.positions + offset, dieRoll, config, offset);
+  const quint8 figure = getFigure(playerIndex, pieceToMove);
   return figure;
 }
 
-void Ludo::applyMove(const quint8 playerIndex, const quint8 figure, const quint8 dieRoll) {
-  bool noMovesPossible = figure == 255;
+void Ludo::applyMove(const quint8 playerIndex, const quint8 playerFigure,
+                     const quint8 dieRoll) {
+  const bool noMovesPossible = playerFigure == 255;
   if (noMovesPossible) {
+    state.toMoveIndex = (state.toMoveIndex + 1) % config.numberOfPlayers;
     return;
   }
-  bool home = state.positions[figure] == 0;
+  const bool home = state.positions[playerFigure] == 0;
   if (home) {
-    state.positions[figure] = 4;
+    state.positions[playerFigure] = 4;
   } else {
-    state.positions[figure] += dieRoll;
+    state.positions[playerFigure] += dieRoll;
   }
-  quint8 offset = playerIndex * config.numberOfPiecesPerPlayer;
+  const quint8 offset = getFigure(playerIndex, 0);
+  const quint8 figure = getFigure(playerIndex, playerFigure);
   // Are we beating another piece
-  for (int i = 0; i < config.numberOfPieces; i++) {
-    bool ownPiece = i - offset < config.numberOfPiecesPerPlayer;
+  for (int otherFigure = 0; otherFigure < config.numberOfPieces;
+       otherFigure++) {
+    const bool ownPiece = otherFigure - offset < config.numberOfPiecesPerPlayer;
     if (ownPiece) {
       continue;
     }
-    if (state.positions[i] == state.positions[figure]) {
-      state.positions[i] = 0;
+    if (state.positions[otherFigure] == state.positions[figure]) {
+      state.positions[otherFigure] = 0;
     }
   }
+  state.toMoveIndex = (state.toMoveIndex + 1) % config.numberOfPlayers;
+}
+
+const quint8 Ludo::getFigure(const quint8 playerIndex,
+                             const quint8 playerFigure) {
+  return playerIndex * config.numberOfPiecesPerPlayer + playerFigure;
 }
 
 const quint8 Ludo::startingRoll() {

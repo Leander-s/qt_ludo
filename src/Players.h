@@ -29,7 +29,7 @@ public:
   AIPlayer(const LudoColor _color);
   virtual const quint8 decide(const quint8 *positions, const quint8 roll,
                               const MapConfig &config,
-                              const quint8 playerOffset) {
+                              const quint8 playerOffset) const {
     return 0;
   }
 };
@@ -39,7 +39,7 @@ public:
   OneManArmy(const LudoColor _color) : AIPlayer(_color) {};
   const quint8 decide(const quint8 *positions, const quint8 roll,
                       const MapConfig &config,
-                      const quint8 playerOffset) override;
+                      const quint8 playerOffset) const override;
 };
 
 class YouNeverWalkAlone : public AIPlayer {
@@ -47,7 +47,7 @@ public:
   YouNeverWalkAlone(const LudoColor _color) : AIPlayer(_color) {};
   const quint8 decide(const quint8 *positions, const quint8 roll,
                       const MapConfig &config,
-                      const quint8 playerOffset) override;
+                      const quint8 playerOffset) const override;
 };
 
 class Pacifist : public AIPlayer {
@@ -55,7 +55,7 @@ public:
   Pacifist(const LudoColor _color) : AIPlayer(_color) {};
   const quint8 decide(const quint8 *positions, const quint8 roll,
                       const MapConfig &config,
-                      const quint8 playerOffset) override;
+                      const quint8 playerOffset) const override;
 };
 
 class Killer : public AIPlayer {
@@ -63,6 +63,6 @@ public:
   Killer(const LudoColor _color) : AIPlayer(_color) {};
   const quint8 decide(const quint8 *positions, const quint8 roll,
                       const MapConfig &config,
-                      const quint8 playerOffset) override;
+                      const quint8 playerOffset) const override;
 };
 } // namespace QtLudo

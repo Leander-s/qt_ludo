@@ -19,9 +19,10 @@ public:
   ~Ludo();
   void start();
   const quint8 findMove(const quint8 playerIndex, const quint8 dieRoll);
-  void applyMove(const quint8 playerIndex, const quint8 figure, const quint8 dieRoll);
+  void applyMove(const quint8 playerIndex, const quint8 playerFigure, const quint8 dieRoll);
   const quint8 roll(const quint32 seed);
   const quint8 startingRoll();
+  const quint8 getFigure(const quint8 playerIndex, const quint8 playerFigure);
 
   const MapConfig config;
   const Map *map;

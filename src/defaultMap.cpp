@@ -18,7 +18,6 @@ QVector<QVector<quint8>> genDefaultPaths() {
   for (int i = 0; i < defaultNumberOfPlayers; i++) {
     for (int j = 0; j < defaultNumberOfPiecesPerPlayer; j++) {
       int pieceIndex = i * defaultNumberOfPiecesPerPlayer + j;
-      std::cout << pieceIndex << std::endl;
       paths[pieceIndex].push_back(Yards[i] + j);
       // -6 for home spaces and -1 for yard space
       for (int k = 0; k < defaultPathLength - 6 - 1; k++) {

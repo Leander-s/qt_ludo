@@ -104,9 +104,7 @@ void GameOpenGLWidget::initializeGL() {
 void GameOpenGLWidget::initializeGame(Map *_map, GameState *_state) {
   map = _map;
   gameState = _state;
-  std::cout << "Getting config\n";
   config = map->getMapConfig();
-  std::cout << "Creating objects\n";
   gameObjects = createObjects();
 }
 

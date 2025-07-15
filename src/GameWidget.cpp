@@ -5,17 +5,13 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   QStackedLayout *layout = new QStackedLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
 
-  std::cout << "Making map\n";
   map.initializeMap();
 
-  std::cout << "Making game\n";
   game = std::make_unique<Ludo>(Ludo(&map));
 
-  std::cout << "Making widgets\n";
   openglwidget = new GameOpenGLWidget;
   pausemenu = std::make_shared<PauseMenuWidget>(new PauseMenuWidget);
 
-  std::cout << "Initializing game\n";
   openglwidget->initializeGame(&map, &game->state);
   std::cout << "Showing opengl widget\n";
   openglwidget->show();

@@ -37,7 +37,7 @@ const quint8 Map::getTotalIndex(const quint8 figure, const quint8 index) const {
   return paths[figure][index];
 }
 
-const MapConfig &Map::getMapConfig() const { return config; }
+const MapConfig Map::getMapConfig() const { return config; }
 
 bool Map::saveMap(const QString path) {
   QFile file(path);

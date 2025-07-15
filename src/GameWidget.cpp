@@ -17,11 +17,14 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
 
   std::cout << "Initializing game\n";
   openglwidget->initializeGame(&map, &game->state);
+  std::cout << "Showing opengl widget\n";
   openglwidget->show();
+  std::cout << "Showed opengl widget\n";
   pausemenu->hide();
   paused = false;
   pausemenu->setContentsMargins(0, 0, 0, 0);
 
+  std::cout << "Adding opengl widget\n";
   layout->addWidget(openglwidget);
   layout->addWidget(pausemenu.get());
   pausemenu->raise();

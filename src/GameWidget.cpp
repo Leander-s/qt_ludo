@@ -12,7 +12,7 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   openglwidget = new GameOpenGLWidget;
   pausemenu = std::make_shared<PauseMenuWidget>(new PauseMenuWidget);
 
-  openglwidget->initializeGame(&map, &game->state);
+  openglwidget->initializeGame(&map);
   openglwidget->show();
   pausemenu->hide();
   paused = false;
@@ -59,11 +59,11 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
     return;
   }
 
-  const Player *player = &game->players[game->state.toMoveIndex];
-  const quint8 playerIndex = game->state.toMoveIndex;
+  const quint8 playerIndex = game->getToMove();
   const quint8 offset = game->getFigure(playerIndex, 0);
-  const QVector<bool> possibleMoves = player->getPossibleMoves(
-      game->state.positions + offset, lastDieRoll, game->config);
+  LOG("Getting possible moves for roll: " << (int)lastDieRoll);
+  const QVector<bool> possibleMoves = game->getPossibleMoves(
+      playerIndex, lastDieRoll);
 
   bool canMove = false;
   for (const bool movePossible : possibleMoves) {
@@ -73,6 +73,7 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   }
 
   if (!canMove) {
+    LOG("Player cannot move");
     game->applyMove(playerIndex, 255, lastDieRoll);
     updateGameState();
     return;
@@ -106,11 +107,15 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   }
 
   if (playerFigure == 255) {
+    LOG("Not a possible move");
     return;
   }
 
-  game->applyMove(playerIndex, playerFigure, lastDieRoll);
-  quint8 figure = game->getFigure(playerIndex, playerFigure);
+  LOG("Player played " << (int)playerFigure);
+  quint8 figure = game->applyMove(playerIndex, playerFigure, lastDieRoll);
+  if (figure == 255) {
+    updateGameState();
+  }
   openglwidget->updatePosition(figure);
   updateGameState();
 }
@@ -123,25 +128,28 @@ void GameWidget::startGame() {
 void GameWidget::updateGameState() {
   game->humanMove = false;
 
-  const quint8 playerIndex = game->state.toMoveIndex;
+  const quint8 playerIndex = game->getToMove();
   const Player *player = &game->players[playerIndex];
   const LudoColor color = player->color;
-  LOG(printLudoColor(color) << "'s turn\n");
-  const quint32 seed = std::time(0);
-  lastDieRoll = game->roll(seed);
-  LOG("Rolled");
+  LOG("\n" << printLudoColor(color) << "'s turn");
+  lastDieRoll = game->roll();
+  LOG("Rolled " << (int)lastDieRoll);
   if (player->human) {
     game->humanMove = true;
     return;
   }
 
-  const quint8 *positions = game->state.positions;
   const quint8 playerFigure = game->findMove(playerIndex, lastDieRoll);
-  game->applyMove(playerIndex, playerFigure, lastDieRoll);
-  const quint8 figure = game->getFigure(playerIndex, playerFigure);
+  const quint8 figure = game->applyMove(playerIndex, playerFigure, lastDieRoll);
 
-  LOG("Updating position " << (int)figure << " of player " << (int)playerIndex
-                           << " with " << (int)game->state.positions[figure]);
+  if (figure == 255) {
+    updateGameState();
+    return;
+  }
+
+  LOG("Updating coords of figure " << (int)figure << " of player "
+                                   << (int)playerIndex << " with "
+                                   << (int)game->getPosition(figure));
   openglwidget->updatePosition(figure);
   updateGameState();
 }

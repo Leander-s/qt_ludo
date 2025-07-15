@@ -22,9 +22,8 @@ class GameOpenGLWidget : public QOpenGLWidget,
 public:
   explicit GameOpenGLWidget(QWidget *parent = nullptr);
   ~GameOpenGLWidget();
-  void initializeGame(Map *_map, GameState *_state);
-  void updateAllPositions();
-  void updatePosition(const quint8 totalFigureIndex);
+  void initializeGame(Map *_map);
+  void updatePosition(const quint8 figure, const quint8 position);
 
 protected:
   void initializeGL() override;
@@ -46,7 +45,6 @@ private:
   QOpenGLShaderProgram *shaderProgram;
   std::vector<Model> models;
   std::vector<GameObject *> gameObjects;
-  GameState *gameState;
   Map *map;
   MapConfig config;
 };

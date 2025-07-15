@@ -1,14 +1,17 @@
 #include "Game.h"
 #include "Players.h"
+#include <chrono>
 
 namespace QtLudo {
 Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
-  players = {HumanPlayer(LudoColor::red),
-             AIPlayer(LudoColor::blue, oneManArmyPreset),
-             AIPlayer(LudoColor::green, youNeverWalkAlonePreset),
-             AIPlayer(LudoColor::yellow, killerPreset)};
+  players = {
+      HumanPlayer(LudoColor::red),
+      AIPlayer(LudoColor::blue, oneManArmyPreset),
+      AIPlayer(LudoColor::yellow, killerPreset),
+      AIPlayer(LudoColor::green, youNeverWalkAlonePreset),
+  };
   state.positions = new quint8[config.numberOfPieces];
-  memset(state.positions, 0, config.numberOfPieces);
+  memset((void *)state.positions, 0, config.numberOfPieces);
 }
 
 Ludo::~Ludo() { delete state.positions; }
@@ -18,6 +21,42 @@ void Ludo::start() {
   humanMove = players[state.toMoveIndex].human;
 }
 
+const QVector<bool> Ludo::getPossibleMoves(const quint8 playerIndex,
+                                           const quint8 roll) const {
+  bool sixRolled = roll == 6;
+  QVector<bool> possibleMoves(config.numberOfPiecesPerPlayer, false);
+
+  LOG("Rolled " << (int)roll);
+  LOG("Possible moves are : ");
+  const quint8 *playerPositions = state.positions + getFigure(playerIndex, 0);
+  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
+    // Check if there is enough space to move my piece
+    bool notTooFar = (config.lengthOfPath - playerPositions[i]) >= roll;
+    if (!notTooFar) {
+      continue;
+    }
+
+    // Check if I am in home and need to roll a six to move
+    bool inHome = playerPositions[i] == 0;
+    LOG((int)playerPositions[i]);
+    LOG(i << " is home: " << inHome);
+    quint8 futurePos;
+    if (inHome) {
+      if (!sixRolled) {
+        continue;
+      }
+      futurePos = 1;
+    } else {
+      futurePos = playerPositions[i] + roll;
+    }
+
+    // We are here so this move is possible
+    possibleMoves[i] = true;
+    LOG(i);
+  }
+  return possibleMoves;
+}
+
 const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
   if (players[playerIndex].human)
     return 255;
@@ -25,27 +64,26 @@ const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
   const AIPlayer *bot = (AIPlayer *)&players[playerIndex];
   const quint8 offset = getFigure(playerIndex, 0);
   const quint8 pieceToMove =
-      bot->decide(state.positions + offset, dieRoll, config, offset);
-  LOG("Decided on piece : " << (int)pieceToMove);
+      bot->decide(state.positions, dieRoll, config, offset);
   return pieceToMove;
 }
 
-void Ludo::applyMove(const quint8 playerIndex, const quint8 playerFigure,
-                     const quint8 dieRoll) {
+const quint8 Ludo::applyMove(const quint8 playerIndex,
+                             const quint8 playerFigure, const quint8 dieRoll) {
   const bool noMovesPossible = playerFigure == 255;
   if (noMovesPossible) {
     state.toMoveIndex = (state.toMoveIndex + 1) % config.numberOfPlayers;
     LOG("No possible moves...");
-    return;
-  }
-  const bool home = state.positions[playerFigure] == 0;
-  if (home) {
-    state.positions[playerFigure] = 4;
-  } else {
-    state.positions[playerFigure] += dieRoll;
+    return 255;
   }
   const quint8 offset = getFigure(playerIndex, 0);
   const quint8 figure = getFigure(playerIndex, playerFigure);
+  const bool home = state.positions[figure] == 0;
+  if (home) {
+    state.positions[figure] = 1;
+  } else {
+    state.positions[figure] += dieRoll;
+  }
   // Are we beating another piece
   for (int otherFigure = 0; otherFigure < config.numberOfPieces;
        otherFigure++) {
@@ -58,20 +96,26 @@ void Ludo::applyMove(const quint8 playerIndex, const quint8 playerFigure,
     }
   }
   state.toMoveIndex = (state.toMoveIndex + 1) % config.numberOfPlayers;
+  return figure;
 }
 
+const quint8 Ludo::getPosition(const quint8 figure) const {
+  return state.positions[figure];
+}
+
+const quint8 Ludo::getToMove() const { return state.toMoveIndex; }
+
 const quint8 Ludo::getFigure(const quint8 playerIndex,
-                             const quint8 playerFigure) {
+                             const quint8 playerFigure) const {
   return playerIndex * config.numberOfPiecesPerPlayer + playerFigure;
 }
 
 const quint8 Ludo::startingRoll() {
-  quint32 seed = std::time(0);
   quint8 bestRoll = 0;
   int bestIndex = -1;
 
   for (int dieIndex = 0; dieIndex < config.numberOfPlayers; dieIndex++) {
-    quint8 currentRoll = roll(seed++);
+    quint8 currentRoll = roll();
     if (currentRoll > bestRoll) {
       bestIndex = dieIndex;
       bestRoll = currentRoll;
@@ -81,7 +125,11 @@ const quint8 Ludo::startingRoll() {
   return bestIndex;
 }
 
-const quint8 Ludo::roll(quint32 seed) {
+const quint8 Ludo::roll() {
+  using namespace std::chrono;
+  quint32 seed =
+      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+          .count();
   const int random = rand_r(&seed);
   return 1 + random % 6;
 }

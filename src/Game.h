@@ -4,9 +4,10 @@
 #include "ModelUtil.h"
 #include "Players.h"
 #include "State.h"
-#include <memory>
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
+#include <chrono>
+#include <memory>
 #include <stdlib.h>
 #include <time.h>
 
@@ -18,16 +19,25 @@ public:
   Ludo();
   ~Ludo();
   void start();
+  const QVector<bool> getPossibleMoves(const quint8 playerIndex,
+                                       const quint8 roll) const;
   const quint8 findMove(const quint8 playerIndex, const quint8 dieRoll);
-  void applyMove(const quint8 playerIndex, const quint8 playerFigure, const quint8 dieRoll);
-  const quint8 roll(const quint32 seed);
+  const quint8 applyMove(const quint8 playerIndex, const quint8 playerFigure,
+                         const quint8 dieRoll);
+  const quint8 roll();
   const quint8 startingRoll();
-  const quint8 getFigure(const quint8 playerIndex, const quint8 playerFigure);
+  const quint8 getFigure(const quint8 playerIndex,
+                         const quint8 playerFigure) const;
+
+  const quint8 getPosition(const quint8 figure) const;
+  const quint8 getToMove() const;
 
   const MapConfig config;
   const Map *map;
-  GameState state;
   std::vector<Player> players;
   bool humanMove;
+
+private:
+  GameState state;
 };
 } // namespace QtLudo

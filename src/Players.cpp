@@ -1,36 +1,6 @@
 #include "Players.h"
 
 namespace QtLudo {
-const QVector<bool> Player::getPossibleMoves(const quint8 *playerPositions,
-                                             const quint8 roll,
-                                             const MapConfig &config) const {
-  bool sixRolled = roll == 6;
-  QVector<bool> possibleMoves(config.numberOfPiecesPerPlayer, false);
-
-  for (int i = 0; i < config.numberOfPiecesPerPlayer; i++) {
-    // Check if there is enough space to move my piece
-    bool notTooFar = (config.lengthOfPath - playerPositions[i]) >= roll;
-    if (!notTooFar) {
-      break;
-    }
-
-    // Check if I am in home and need to roll a six to move
-    bool inHome = playerPositions[i] < 4;
-    quint8 futurePos;
-    if (inHome) {
-      if (!sixRolled) {
-        break;
-      }
-      futurePos = 4;
-    } else {
-      futurePos = playerPositions[i] + roll;
-    }
-
-    // We are here so this move is possible
-    possibleMoves[i] = true;
-  }
-  return possibleMoves;
-}
 
 void Player::sortPositions(const quint8 *playerPositions,
                            quint8 *sortedPositions,
@@ -110,6 +80,7 @@ const int AIPlayer::calculateScore(const quint8 *positions,
 const quint8 AIPlayer::decide(const quint8 *positions, const quint8 roll,
                               const MapConfig &config,
                               const quint8 playerOffset) const {
+  LOG("Rolled a " << (int)roll);
   const QVector<bool> possibleMoves =
       getPossibleMoves(positions + playerOffset, roll, config);
   const quint8 *playerPositions = positions + playerOffset;

@@ -99,9 +99,8 @@ void GameOpenGLWidget::initializeGL() {
   }
 }
 
-void GameOpenGLWidget::initializeGame(Map *_map, GameState *_state) {
+void GameOpenGLWidget::initializeGame(Map *_map) {
   map = _map;
-  gameState = _state;
   config = map->getMapConfig();
   gameObjects = createObjects();
 }
@@ -142,25 +141,10 @@ void GameOpenGLWidget::paintGL() {
   shaderProgram->release();
 }
 
-void GameOpenGLWidget::updatePosition(const quint8 figure) {
-  quint8 position = gameState->positions[figure];
+void GameOpenGLWidget::updatePosition(const quint8 figure, const quint8 position) {
   QVector2D coords = map->getCoords(figure, position);
   GameObject *object = gameObjects[figure];
   object->setPosition(QVector3D(coords.x(), 0.0f, coords.y()));
-}
-
-void GameOpenGLWidget::updateAllPositions() {
-  for (int playerIndex = 0; playerIndex < config.numberOfPlayers;
-       playerIndex++) {
-    for (int figureIndex = 0; figureIndex < config.numberOfPiecesPerPlayer;
-         figureIndex++) {
-
-      QVector2D figureCoords = map->getCoords(figureIndex, playerIndex);
-      GameObject *figureObject = gameObjects[playerIndex];
-      figureObject->setPosition(
-          QVector3D(figureCoords.x(), 0.0f, figureCoords.y()));
-    }
-  }
 }
 
 std::vector<GameObject *> GameOpenGLWidget::createObjects() {

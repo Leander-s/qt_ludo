@@ -1,7 +1,11 @@
 #include "Map.h"
 
 namespace QtLudo {
-Map::Map(const QString path) {
+Map::Map() {
+    initialized = false;
+}
+
+void Map::initializeMap(const QString path) {
   if (path == "default") {
     config.lengthOfPath = 63;
     config.numberOfPlayers = 4;
@@ -15,7 +19,10 @@ Map::Map(const QString path) {
     if (!saveMap(QString("defaultMap.map"))) {
       std::cout << "Saving map failed\n";
     }
+  }else{
+      loadMap(path);
   }
+  initialized = true;
 }
 
 const QVector2D &Map::getCoords(const quint8 figure, const quint8 index) const {

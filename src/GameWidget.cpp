@@ -1,5 +1,4 @@
 #include "GameWidget.h"
-#include <memory>
 
 namespace QtLudo {
 GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
@@ -7,23 +6,23 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   layout->setContentsMargins(0, 0, 0, 0);
 
   std::cout << "Making map\n";
-  map = std::make_shared<Map>(new Map);
+  map.initializeMap();
 
   std::cout << "Making game\n";
-  game = std::make_unique<Ludo>(Ludo(map.get()));
+  game = std::make_unique<Ludo>(Ludo(&map));
 
   std::cout << "Making widgets\n";
-  openglwidget = std::make_shared<GameOpenGLWidget>(new GameOpenGLWidget);
+  openglwidget = new GameOpenGLWidget;
   pausemenu = std::make_shared<PauseMenuWidget>(new PauseMenuWidget);
 
   std::cout << "Initializing game\n";
-  openglwidget->initializeGame(map.get(), &game->state);
+  openglwidget->initializeGame(&map, &game->state);
   openglwidget->show();
   pausemenu->hide();
   paused = false;
   pausemenu->setContentsMargins(0, 0, 0, 0);
 
-  layout->addWidget(openglwidget.get());
+  layout->addWidget(openglwidget);
   layout->addWidget(pausemenu.get());
   pausemenu->raise();
 
@@ -32,7 +31,7 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   connect(timer, &QTimer::timeout, openglwidget,
           QOverload<>::of(&GameOpenGLWidget::update)); timer->start(16);
   */
-  connect(openglwidget.get(), &QOpenGLWidget::frameSwapped, openglwidget.get(),
+  connect(openglwidget, &QOpenGLWidget::frameSwapped, openglwidget,
           QOverload<>::of(&GameOpenGLWidget::update));
   /*
   connect(openglwidget, &GameOpenGLWidget::pauseGame, this,
@@ -115,7 +114,7 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   }
 
   game->applyMove(playerIndex, chosenFigure, lastDieRoll);
-  quint8 totalChosenFigure = map->getTotalIndex(chosenFigure, playerIndex);
+  quint8 totalChosenFigure = map.getTotalIndex(chosenFigure, playerIndex);
   openglwidget->updatePosition(totalChosenFigure);
   updateGameState();
 }

@@ -18,10 +18,10 @@ public:
   void startGame();
 
 private:
-  std::shared_ptr<GameOpenGLWidget> openglwidget;
+  GameOpenGLWidget *openglwidget;
   std::shared_ptr<PauseMenuWidget> pausemenu;
-  std::shared_ptr<Map> map;
   std::unique_ptr<Ludo> game;
+  Map map;
   bool paused;
   MapConfig config;
   uint8_t lastDieRoll;

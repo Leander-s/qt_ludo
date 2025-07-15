@@ -16,7 +16,8 @@ struct MapConfig {
 
 class Map {
 public:
-  Map(const QString path = "default");
+  Map();
+  void initializeMap(const QString path = "default");
   const QVector2D &getCoords(const quint8 figure, const quint8 index) const;
   const QVector2D &getCoords(const quint8 totalFigure) const;
   const quint8 getTotalIndex(const quint8 figure, const quint8 index) const;
@@ -26,6 +27,7 @@ private:
   QVector<QVector2D> posCoordMap;
   QVector<QVector<quint8>> paths;
   MapConfig config;
+  bool initialized;
   bool saveMap(const QString path);
   bool loadMap(const QString path);
 };

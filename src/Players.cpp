@@ -14,13 +14,9 @@ const QVector<bool> Player::getPossibleMoves(const quint8 *positions,
     // Check if there is enough space to move my piece
     int playerPosition = i + playerOffset;
     bool notTooFar = (config.lengthOfPath - positions[playerPosition]) >= roll;
-    std::cout << "Game state : ";
-    for (int i = 0; i < config.numberOfPieces; i++) {
-      std::cout << (int)positions[i] << ", ";
-    }
-    std::cout << std::endl;
-    std::cout << "Player position: " << positions[playerPosition] << std::endl;
     if (!notTooFar) {
+      LOG("Too far");
+      LOG((int)positions[playerPosition]);
       continue;
     }
 

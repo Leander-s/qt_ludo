@@ -62,9 +62,8 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   const quint8 playerIndex = game->getToMove();
   const quint8 playerOffset = game->getFigure(playerIndex, 0);
   Player *player = &game->players[playerIndex];
-  LOG("Getting possible moves for roll: " << (int)lastDieRoll);
   const QVector<bool> possibleMoves = player->getPossibleMoves(
-      game->state.positions, playerOffset, lastDieRoll, config);
+      game->state.positions, playerOffset, lastDieRoll, map.getMapConfig());
 
   bool canMove = false;
   for (const bool movePossible : possibleMoves) {
@@ -134,7 +133,7 @@ void GameWidget::updateGameState() {
   const LudoColor color = player->color;
   LOG("\n" << printLudoColor(color) << "'s turn");
   std::cout << "Game state ";
-  for(int i = 0; i < config.numberOfPieces; i++){
+  for(int i = 0; i < map.getMapConfig().numberOfPieces; i++){
       std::cout << (int)game->state.positions[i] << ", ";
   }
   std::cout << std::endl;

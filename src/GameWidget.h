@@ -23,7 +23,6 @@ private:
   Ludo *game;
   Map map;
   bool paused;
-  MapConfig config;
   quint32 lastDieRoll;
 
   void keyPressEvent(QKeyEvent *event) override;

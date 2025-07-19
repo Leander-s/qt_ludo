@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>HUD</class>
+    <widget class="QWidget" name="HUDWidget">
+        <property name="styleSheet">
+            <string notr="true">
+                background-color:#222222;
+                color:#222222;
+            </string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="spacing">
+                <number>25</number>
+            </property>
+            <item>
+                <widget class="QLabel" name="DieIndicator">
+                    <property name="text">
+                        <string>Rolled</string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>monospace</family>
+                            <pointsize>50</pointsize>
+                            <bold>true</bold>
+                        </font>
+                    </property>
+                    <property name="styleSheet">
+                        <string notr="true">
+                            background-color : rgba(0, 0, 0, 0);
+                            color: #dddddd;
+                        </string>
+                    </property>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>

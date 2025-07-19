@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <qrandom.h>
 
 namespace QtLudo {
 Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
@@ -9,7 +10,7 @@ Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
       AIPlayer(LudoColor::green, youNeverWalkAlonePreset),
   };
   state.positions = new quint8[config.numberOfPieces];
-  memset((void*)state.positions, 0, config.numberOfPieces);
+  memset((void *)state.positions, 0, config.numberOfPieces);
   for (int i = 0; i < config.numberOfPieces; i++) {
     std::cout << (int)state.positions[i] << ", ";
   }
@@ -21,6 +22,7 @@ Ludo::~Ludo() { delete state.positions; }
 void Ludo::start() {
   state.toMoveIndex = startingRoll();
   humanMove = players[state.toMoveIndex].human;
+  rng = QRandomGenerator::securelySeeded();
 }
 
 const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
@@ -91,11 +93,7 @@ const quint8 Ludo::startingRoll() {
 }
 
 const quint8 Ludo::roll() {
-  using namespace std::chrono;
-  quint32 seed =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count();
-  const int random = rand_r(&seed);
+  const quint32 random = rng.generate();
   return 1 + random % 6;
 }
 } // namespace QtLudo

@@ -6,10 +6,10 @@
 #include "State.h"
 #include <QMatrix4x4>
 #include <QOpenGLTexture>
-#include <chrono>
 #include <memory>
 #include <stdlib.h>
 #include <time.h>
+#include <QRandomGenerator>
 
 namespace QtLudo {
 // This should be in a config file
@@ -33,6 +33,7 @@ public:
   const Map *map;
   std::vector<Player> players;
   bool humanMove;
+  QRandomGenerator rng;
 
   GameState state;
 };

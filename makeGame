@@ -4,8 +4,10 @@ import os
 import shutil
 
 os.chdir("./build/")
-shutil.rmtree("shaders")
-shutil.rmtree("assets")
+if (os.path.exists("shaders")):
+    shutil.rmtree("shaders")
+if (os.path.exists("assets")):
+    shutil.rmtree("assets")
 shutil.copytree("../shaders", "shaders")
 shutil.copytree("../assets", "assets")
 os.system("cmake -G Ninja ..")

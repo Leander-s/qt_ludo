@@ -11,15 +11,20 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
 
   openglwidget = new GameOpenGLWidget;
   pausemenu = std::make_shared<PauseMenuWidget>(new PauseMenuWidget);
+  hud = std::make_unique<HUDWidget>(new HUDWidget);
 
   openglwidget->initializeGame(&map);
   openglwidget->show();
   pausemenu->hide();
-  paused = false;
   pausemenu->setContentsMargins(0, 0, 0, 0);
+  hud->show();
+  hud->raise();
+
+  paused = false;
 
   layout->addWidget(openglwidget);
   layout->addWidget(pausemenu.get());
+  layout->addWidget(hud.get());
   pausemenu->raise();
 
   /*
@@ -46,6 +51,45 @@ void GameWidget::togglePause() {
   } else {
     pausemenu->show();
     paused = true;
+  }
+}
+
+void GameWidget::startGame() {
+  game->start();
+  updateGameState();
+}
+
+void GameWidget::updateGameState() {
+  game->humanMove = false;
+  while (!game->humanMove) {
+    const quint8 playerIndex = game->getToMove();
+    const Player *player = &game->players[playerIndex];
+    const LudoColor color = player->color;
+    LOG("\n" << printLudoColor(color) << "'s turn");
+    std::cout << "Game state ";
+    for (int i = 0; i < map.getMapConfig().numberOfPieces; i++) {
+      std::cout << (int)game->state.positions[i] << ", ";
+    }
+    std::cout << std::endl;
+    lastDieRoll = game->roll();
+    hud->update(lastDieRoll);
+    if (player->human) {
+      game->humanMove = true;
+      return;
+    }
+
+    const quint8 playerFigure = game->findMove(playerIndex, lastDieRoll);
+    const quint8 figure =
+        game->applyMove(playerIndex, playerFigure, lastDieRoll);
+
+    if (figure == 255) {
+      continue;
+    }
+
+    LOG("Updating coords of figure " << (int)figure << " of player "
+                                     << (int)playerIndex << " with "
+                                     << (int)game->getPosition(figure));
+    openglwidget->updatePosition(figure, game->getPosition(figure));
   }
 }
 
@@ -116,45 +160,6 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
   if (figure == 255) {
     updateGameState();
   }
-  openglwidget->updatePosition(figure, game->getPosition(figure));
-  updateGameState();
-}
-
-void GameWidget::startGame() {
-  game->start();
-  updateGameState();
-}
-
-void GameWidget::updateGameState() {
-  game->humanMove = false;
-
-  const quint8 playerIndex = game->getToMove();
-  const Player *player = &game->players[playerIndex];
-  const LudoColor color = player->color;
-  LOG("\n" << printLudoColor(color) << "'s turn");
-  std::cout << "Game state ";
-  for(int i = 0; i < map.getMapConfig().numberOfPieces; i++){
-      std::cout << (int)game->state.positions[i] << ", ";
-  }
-  std::cout << std::endl;
-  lastDieRoll = game->roll();
-  LOG("Rolled " << (int)lastDieRoll);
-  if (player->human) {
-    game->humanMove = true;
-    return;
-  }
-
-  const quint8 playerFigure = game->findMove(playerIndex, lastDieRoll);
-  const quint8 figure = game->applyMove(playerIndex, playerFigure, lastDieRoll);
-
-  if (figure == 255) {
-    updateGameState();
-    return;
-  }
-
-  LOG("Updating coords of figure " << (int)figure << " of player "
-                                   << (int)playerIndex << " with "
-                                   << (int)game->getPosition(figure));
   openglwidget->updatePosition(figure, game->getPosition(figure));
   updateGameState();
 }

@@ -1,4 +1,5 @@
 #include "GameWidget.h"
+#include <qnamespace.h>
 
 namespace QtLudo {
 GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
@@ -18,7 +19,6 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   pausemenu->hide();
   pausemenu->setContentsMargins(0, 0, 0, 0);
   hud->show();
-  hud->raise();
 
   paused = false;
 
@@ -56,41 +56,53 @@ void GameWidget::togglePause() {
 
 void GameWidget::startGame() {
   game->start();
-  updateGameState();
+  getNewGameState();
 }
 
-void GameWidget::updateGameState() {
+void GameWidget::getNewGameState() {
   game->humanMove = false;
-  while (!game->humanMove) {
-    const quint8 playerIndex = game->getToMove();
-    const Player *player = &game->players[playerIndex];
-    const LudoColor color = player->color;
-    LOG("\n" << printLudoColor(color) << "'s turn");
-    std::cout << "Game state ";
-    for (int i = 0; i < map.getMapConfig().numberOfPieces; i++) {
-      std::cout << (int)game->state.positions[i] << ", ";
+  player.index = game->getToMove();
+  player.player = &game->players[player.index];
+  LOG("\n" << printLudoColor(player.player->color) << "'s turn");
+  player.roll = game->roll();
+  hud->update(player.roll);
+  player.possibleMoves = player.player->getPossibleMoves(
+      game->state.positions, player.offset, player.roll, map.getMapConfig());
+  bool canMove = false;
+  for (bool movePossible : player.possibleMoves) {
+    if (movePossible) {
+      canMove = true;
+      break;
     }
-    std::cout << std::endl;
-    lastDieRoll = game->roll();
-    hud->update(lastDieRoll);
-    if (player->human) {
-      game->humanMove = true;
-      return;
-    }
-
-    const quint8 playerFigure = game->findMove(playerIndex, lastDieRoll);
-    const quint8 figure =
-        game->applyMove(playerIndex, playerFigure, lastDieRoll);
-
-    if (figure == 255) {
-      continue;
-    }
-
-    LOG("Updating coords of figure " << (int)figure << " of player "
-                                     << (int)playerIndex << " with "
-                                     << (int)game->getPosition(figure));
-    openglwidget->updatePosition(figure, game->getPosition(figure));
   }
+  if (!canMove) {
+    player.choice = 255;
+    setNewGameState();
+  }
+  if (player.player->human) {
+    game->humanMove = true;
+    return;
+  }
+  player.choice = game->findMove(player.index, player.roll);
+  setNewGameState();
+}
+
+void GameWidget::setNewGameState() {
+  const quint8 figure =
+      game->applyMove(player.index, player.choice, player.roll);
+
+  if (figure == 255) {
+    QMetaObject::invokeMethod(this, &GameWidget::getNewGameState,
+                              Qt::QueuedConnection);
+    return;
+  }
+
+  LOG("Updating coords of figure " << (int)figure << " of player "
+                                   << (int)player.index << " with "
+                                   << (int)game->getPosition(figure));
+  openglwidget->updatePosition(figure, game->getPosition(figure));
+  QMetaObject::invokeMethod(this, &GameWidget::getNewGameState,
+                            Qt::QueuedConnection);
 }
 
 void GameWidget::keyPressEvent(QKeyEvent *event) {
@@ -103,64 +115,41 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
     return;
   }
 
-  const quint8 playerIndex = game->getToMove();
-  const quint8 playerOffset = game->getFigure(playerIndex, 0);
-  Player *player = &game->players[playerIndex];
-  const QVector<bool> possibleMoves = player->getPossibleMoves(
-      game->state.positions, playerOffset, lastDieRoll, map.getMapConfig());
-
-  bool canMove = false;
-  for (const bool movePossible : possibleMoves) {
-    if (movePossible) {
-      canMove = true;
-    }
-  }
-
-  if (!canMove) {
-    LOG("Player cannot move");
-    game->applyMove(playerIndex, 255, lastDieRoll);
-    updateGameState();
-    return;
-  }
-  quint8 playerFigure = 255;
+  player.choice = 255;
   switch (event->key()) {
   case Qt::Key_1:
-    if (!possibleMoves[0]) {
+    if (!player.possibleMoves[0]) {
       break;
     }
-    playerFigure = 0;
+    player.choice = 0;
     break;
   case Qt::Key_2:
-    if (!possibleMoves[1]) {
+    if (!player.possibleMoves[1]) {
       break;
     }
-    playerFigure = 1;
+    player.choice = 1;
     break;
   case Qt::Key_3:
-    if (!possibleMoves[2]) {
+    if (!player.possibleMoves[2]) {
       break;
     }
-    playerFigure = 2;
+    player.choice = 2;
     break;
   case Qt::Key_4:
-    if (!possibleMoves[3]) {
+    if (!player.possibleMoves[3]) {
       break;
     }
-    playerFigure = 3;
+    player.choice = 3;
     break;
   }
 
-  if (playerFigure == 255) {
+  if (player.choice == 255) {
+    // This should never occur
     LOG("Not a possible move");
     return;
   }
 
-  LOG("Player played " << (int)playerFigure);
-  quint8 figure = game->applyMove(playerIndex, playerFigure, lastDieRoll);
-  if (figure == 255) {
-    updateGameState();
-  }
-  openglwidget->updatePosition(figure, game->getPosition(figure));
-  updateGameState();
+  LOG("Player played " << (int)player.choice);
+  setNewGameState();
 }
 } // namespace QtLudo

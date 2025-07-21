@@ -2,12 +2,6 @@
 <ui version="4.0">
     <class>HUD</class>
     <widget class="QWidget" name="HUDWidget">
-        <property name="styleSheet">
-            <string notr="true">
-                background-color:#222222;
-                color:#222222;
-            </string>
-        </property>
         <layout class="QVBoxLayout" name="verticalLayout">
             <property name="spacing">
                 <number>25</number>
@@ -26,12 +20,6 @@
                             <pointsize>50</pointsize>
                             <bold>true</bold>
                         </font>
-                    </property>
-                    <property name="styleSheet">
-                        <string notr="true">
-                            background-color : rgba(0, 0, 0, 0);
-                            color: #dddddd;
-                        </string>
                     </property>
                 </widget>
             </item>

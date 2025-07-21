@@ -4,7 +4,16 @@
     sudo apt install qt6-base-dev qt6-tools-dev qt6-tools-dev-tools build-essential cmake ninja-build
 
 ## ToDo
- - write some tests to test the testing scripts
+ - If human move, do all the things you need to do and store them in a struct 
+   in the game widget. Then you can print everything needed immediately and 
+   only have to call things like getPossibleMoves once inside gameWidget. On 
+   keyevent. Check which key and store in struct as well. This way we get 
+   skipped immediately if we can't move and don't have to press a button. Also 
+   we dont interfere with the game when pressing another button (other than 
+   1 -> 4)
+    - fix this
+
+ - Testing scripts work fine. Need a better, more standartised testing suite
 
  - coloring the map with highlights for possible moves
 

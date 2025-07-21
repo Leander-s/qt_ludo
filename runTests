@@ -20,7 +20,7 @@ def get_test_files(dir: str) -> list[str]:
 
 def run_tests(test_files: list[str]):
     for file in test_files:
-        print(f"Running tests for {file.split("_")[0]}")
+        print(f"Running tests for {file.split("/")[-1].split("_")[0]}")
         subprocess.call(file)
         print()
 

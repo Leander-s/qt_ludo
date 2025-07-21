@@ -11,6 +11,15 @@
 #include <memory>
 
 namespace QtLudo {
+struct currentPlayer {
+    quint8 index;
+    quint8 offset;
+    Player *player;
+    QVector<bool> possibleMoves;
+    quint8 roll;
+    quint8 choice;
+};
+
 class GameWidget : public QWidget {
   Q_OBJECT
 
@@ -25,15 +34,17 @@ private:
   Ludo *game;
   Map map;
   bool paused;
-  quint8 lastDieRoll;
+  currentPlayer player;
 
   void keyPressEvent(QKeyEvent *event) override;
-  void updateGameState();
+  void getNewGameState();
+  void setNewGameState();
 
 signals:
   void quitToMenu();
 
 private slots:
+  // void humanCommitted();
   void togglePause();
 };
 } // namespace QtLudo

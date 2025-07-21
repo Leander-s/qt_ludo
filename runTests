@@ -1,0 +1,34 @@
+#!/bin/python
+
+import os
+import subprocess
+
+
+def get_test_files(dir: str) -> list[str]:
+    files = []
+    for file in os.listdir(dir):
+        file_path = os.path.join(dir, file)
+        if os.path.isfile(file_path):
+            files.append(file_path)
+    tests = []
+
+    for file in files:
+        if "_test" in file:
+            tests.append(file)
+    return tests
+
+
+def run_tests(test_files: list[str]):
+    for file in test_files:
+        print(f"Running tests for {file.split("_")[0]}")
+        subprocess.call(file)
+        print()
+
+
+def main():
+    test_files = get_test_files("build")
+    run_tests(test_files)
+
+
+if __name__ == '__main__':
+    main()

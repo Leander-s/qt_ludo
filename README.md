@@ -4,6 +4,8 @@
     sudo apt install qt6-base-dev qt6-tools-dev qt6-tools-dev-tools build-essential cmake ninja-build
 
 ## ToDo
+ - write some tests to test the testing scripts
+
  - coloring the map with highlights for possible moves
 
  - Implement the actual game (maybe with ai agents at first)

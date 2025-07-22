@@ -1,14 +1,14 @@
 #pragma once
-#include "GLGameObject.h"
-#include "Map.h"
-#include "ModelUtil.h"
-#include "Players.h"
-#include "State.h"
-#include <QMatrix4x4>
-#include <QOpenGLTexture>
+
+// std
 #include <memory>
 #include <stdlib.h>
-#include <time.h>
+
+// Mine
+#include <GLGameObject.h>
+#include <Players.h>
+
+// Qt
 #include <QRandomGenerator>
 
 namespace QtLudo {

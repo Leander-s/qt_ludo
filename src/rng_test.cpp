@@ -1,6 +1,6 @@
 #include "Game.h"
 #include <QtMath>
-#include <qnumeric.h>
+#include <LudoTesting.h>
 
 using namespace QtLudo;
 using namespace std;
@@ -28,12 +28,5 @@ int main() {
   }
 
   float percentageDifference = (float)greatestDifference * 100 / dieRolls;
-  if (percentageDifference < 1.0f) {
-    cout << "\033[1;32mRNG test succeeded!\033[0m\nDifference was "
-         << percentageDifference << "%\n";
-    ;
-  } else {
-    cout << "\033[1;31mRNG test failed!\033[0m\nDifference was "
-         << percentageDifference << "%. Should be less than 1%.\n";
-  }
+  testResults("RNG", QtLudo::less, percentageDifference, 1.0f);
 }

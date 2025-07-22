@@ -1,8 +1,14 @@
 #pragma once
+
+// Mine
+#include <State.h>
+
+// std
+#include <iostream>
+
+// Qt
 #include <QVector2D>
 #include <QVector>
-#include <iostream>
-#include "State.h"
 
 namespace QtLudo {
 // Default map

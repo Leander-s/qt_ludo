@@ -3,11 +3,14 @@
 #define LOG(x) std::cout << x << std::endl
 #endif
 
-#include <QVector2D>
-#include <QVector>
+// std
 #include <iostream>
 #include <stdexcept>
 #include <stdint.h>
+
+// Qt
+#include <QVector2D>
+#include <QVector>
 
 namespace QtLudo {
 // Ludo Color

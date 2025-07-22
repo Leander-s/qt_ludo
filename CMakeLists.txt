@@ -10,10 +10,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 file(GLOB CPP "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB HPP "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
 file(GLOB UI "${CMAKE_CURRENT_SOURCE_DIR}/src/*.ui")
+file(GLOB TEST_UTIL "${CMAKE_CURRENT_SOURCE_DIR}/test_util/*.cpp")
+file(GLOB TEST "${CMAKE_CURRENT_SOURCE_DIR}/src/*_test.cpp")
 
 set(SRC
     ${CPP}
-    ${HPP}
     ${UI}
 )
 
@@ -24,8 +25,6 @@ set(LIBS
     Qt6::Gui
 )
 
-file(GLOB TEST "${CMAKE_CURRENT_SOURCE_DIR}/src/*_test.cpp")
-
 list(REMOVE_ITEM SRC ${TEST})
 list(REMOVE_ITEM SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
@@ -34,6 +33,10 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 add_executable(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
 target_sources(${PROJECT_NAME} PRIVATE ${SRC} ./src/main.cpp)
+target_include_directories(${PROJECT_NAME} PRIVATE 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test_util/"
+)
 
 foreach(TEST_FILE IN LISTS TEST)
     get_filename_component(TEST_NAME "${TEST_FILE}" NAME_WE)
@@ -42,7 +45,12 @@ foreach(TEST_FILE IN LISTS TEST)
         ${TEST_NAME}
         ${TEST_FILE}
         ${SRC}
+        ${TEST_UTIL}
     )
 
     target_link_libraries(${TEST_NAME} PRIVATE ${LIBS})
+    target_include_directories(${TEST_NAME} PRIVATE 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_util/"
+    )
 endforeach()

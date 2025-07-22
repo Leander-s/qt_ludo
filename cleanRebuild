@@ -1,0 +1,17 @@
+#!/bin/python
+
+import os
+import shutil
+
+if os.path.exists("build"):
+    shutil.rmtree("build")
+os.mkdir("build")
+os.chdir("./build/")
+if (os.path.exists("shaders")):
+    shutil.rmtree("shaders")
+if (os.path.exists("assets")):
+    shutil.rmtree("assets")
+shutil.copytree("../shaders", "shaders")
+shutil.copytree("../assets", "assets")
+os.system("cmake -G Ninja ..")
+os.system("ninja")

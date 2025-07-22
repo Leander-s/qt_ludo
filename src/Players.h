@@ -1,6 +1,8 @@
 #pragma once
-#include "Map.h"
-#include "State.h"
+
+// Mine
+#include <Map.h>
+#include <State.h>
 
 namespace QtLudo {
 class Controller : public QObject {

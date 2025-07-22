@@ -1,7 +1,10 @@
 #pragma once
-#include "defaultMap.h"
+
+// Mine
+#include <defaultMap.h>
+
+// Qt
 #include <QFile>
-#include <iostream>
 
 namespace QtLudo {
 constexpr char fType[4] = {'P', 'P', '\r', '\n'};

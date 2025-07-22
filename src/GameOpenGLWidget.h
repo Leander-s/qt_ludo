@@ -1,16 +1,20 @@
 #pragma once
-#include "GLGameObject.h"
-#include "Map.h"
-#include "ModelUtil.h"
-#include "State.h"
+
+// Mine
+#include <GLGameObject.h>
+#include <Map.h>
+#include <State.h>
+
+// Qt
 #include <QImage>
 #include <QKeyEvent>
+#include <QWidget>
+
+// QOpenGL
 #include <QOpenGLFunctions>
 #include <QOpenGLFunctions_3_2_Core>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
 #include <QOpenGLWidget>
-#include <QWidget>
 
 namespace QtLudo {
 QOpenGLTexture *loadTexture(const char *path);

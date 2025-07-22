@@ -1,23 +1,23 @@
 #pragma once
-#include "Game.h"
-#include "GameOpenGLWidget.h"
-#include "HUDWidget.h"
-#include "Map.h"
-#include "PauseMenuWidget.h"
-#include <QSizePolicy>
+// Mine
+#include <Game.h>
+#include <HUDWidget.h>
+#include <PauseMenuWidget.h>
+
+// Qt
 #include <QStackedLayout>
+#include <QSizePolicy>
 #include <QTimer>
 #include <QWidget>
-#include <memory>
 
 namespace QtLudo {
 struct currentPlayer {
-    quint8 index;
-    quint8 offset;
-    Player *player;
-    QVector<bool> possibleMoves;
-    quint8 roll;
-    quint8 choice;
+  quint8 index;
+  quint8 offset;
+  Player *player;
+  QVector<bool> possibleMoves;
+  quint8 roll;
+  quint8 choice;
 };
 
 class GameWidget : public QWidget {

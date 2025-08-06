@@ -1,5 +1,8 @@
-#include "GameWidget.h"
-#include "Menu.h"
+// Mine
+#include <GameWidget.h>
+#include <Menu.h>
+
+// Qt
 #include <QMainWindow>
 #include <QStackedWidget>
 

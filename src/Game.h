@@ -12,7 +12,8 @@
 #include <QRandomGenerator>
 
 namespace QtLudo {
-// This should be in a config file
+const quint8 noMovesPossibleCode = 255;
+
 class Ludo {
 public:
   Ludo(const Map *_map);

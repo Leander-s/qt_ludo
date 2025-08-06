@@ -3,6 +3,7 @@
 #include <Game.h>
 #include <HUDWidget.h>
 #include <PauseMenuWidget.h>
+#include <GameOpenGLWidget.h>
 
 // Qt
 #include <QStackedLayout>

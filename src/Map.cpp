@@ -18,7 +18,10 @@ void Map::initializeMap(const QString path) {
       std::cout << "Saving map failed\n";
     }
   }else{
-      loadMap(path);
+      std::cout << "Loading map\n";
+      if(!loadMap(path)){
+          std::cout << "Loading map failed\n";
+      }
   }
   initialized = true;
 }

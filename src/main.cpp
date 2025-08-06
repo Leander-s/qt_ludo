@@ -1,7 +1,10 @@
+// Mine
+#include <MainWindow.h>
+
+// Qt
 #include <QApplication>
 #include <QLabel>
 #include <QPushButton>
-#include "MainWindow.h"
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);

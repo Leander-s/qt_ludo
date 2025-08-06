@@ -1,6 +1,12 @@
 #pragma once
-#include "ModelUtil.h"
+
+// Mine
+#include <ModelUtil.h>
+
+// Qt
 #include <QMatrix4x4>
+
+// QOpenGL
 #include <QOpenGLTexture>
 
 namespace QtLudo {

@@ -1,34 +1,40 @@
 #pragma once
-#include "GLGameObject.h"
-#include "ModelUtil.h"
-#include "Players.h"
-#include "State.h"
-#include <QMatrix4x4>
-#include <QOpenGLTexture>
-#include <array>
+
+// std
+#include <memory>
 #include <stdlib.h>
-#include <time.h>
+
+// Mine
+#include <GLGameObject.h>
+#include <Players.h>
+
+// Qt
+#include <QRandomGenerator>
 
 namespace QtLudo {
 // This should be in a config file
 class Ludo {
 public:
-  Ludo(MapConfig newConfig);
+  Ludo(const Map *_map);
   ~Ludo();
   void start();
-  uint8_t findMove(Player *player, uint8_t dieRoll);
-  void applyMove(uint8_t totalPiece, uint8_t dieRoll);
-  uint8_t roll(uint32_t seed);
-  LudoColor startingRoll();
+  const quint8 findMove(const quint8 playerIndex, const quint8 dieRoll);
+  const quint8 applyMove(const quint8 playerIndex, const quint8 playerFigure,
+                         const quint8 dieRoll);
+  const quint8 roll();
+  const quint8 startingRoll();
+  const quint8 getFigure(const quint8 playerIndex,
+                         const quint8 playerFigure) const;
 
-  uint8_t getPosition(LudoColor color, int index);
+  const quint8 getPosition(const quint8 figure) const;
+  const quint8 getToMove() const;
 
-  GameState *state;
-  MapConfig config;
-
+  const MapConfig config;
+  const Map *map;
+  std::vector<Player> players;
   bool humanMove;
+  QRandomGenerator rng;
 
-  std::vector<Player*> players;
-  int getPlayer(LudoColor color);
+  GameState state;
 };
 } // namespace QtLudo

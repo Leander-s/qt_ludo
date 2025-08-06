@@ -1,29 +1,30 @@
 #include "GameWidget.h"
+#include <qnamespace.h>
 
 namespace QtLudo {
 GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   QStackedLayout *layout = new QStackedLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
 
-  // I want to load maps from yaml/json/whatever in future
-  config = (MapConfig){.numberOfPlayers = 4,
-                       .numberOfPiecesPerPlayer = 4,
-                       .numberOfPieces = 16,
-                       .lengthOfPath = 66};
+  map.initializeMap();
 
-  game = new Ludo(config);
+  game = new Ludo(&map);
 
   openglwidget = new GameOpenGLWidget;
-  pausemenu = new PauseMenuWidget;
+  pausemenu = std::make_shared<PauseMenuWidget>(new PauseMenuWidget);
+  hud = std::make_unique<HUDWidget>(new HUDWidget);
 
-  openglwidget->initializeGame(config, game->state);
+  openglwidget->initializeGame(&map);
   openglwidget->show();
   pausemenu->hide();
-  paused = false;
   pausemenu->setContentsMargins(0, 0, 0, 0);
+  hud->show();
+
+  paused = false;
 
   layout->addWidget(openglwidget);
-  layout->addWidget(pausemenu);
+  layout->addWidget(pausemenu.get());
+  layout->addWidget(hud.get());
   pausemenu->raise();
 
   /*
@@ -37,9 +38,9 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
   connect(openglwidget, &GameOpenGLWidget::pauseGame, this,
           &GameWidget::togglePause);
   */
-  connect(pausemenu, &PauseMenuWidget::resumeGameSignal, pausemenu,
+  connect(pausemenu.get(), &PauseMenuWidget::resumeGameSignal, pausemenu.get(),
           &QWidget::hide);
-  connect(pausemenu, &PauseMenuWidget::quitGameSignal, this,
+  connect(pausemenu.get(), &PauseMenuWidget::quitGameSignal, this,
           &GameWidget::quitToMenu);
 }
 
@@ -53,6 +54,57 @@ void GameWidget::togglePause() {
   }
 }
 
+void GameWidget::startGame() {
+  game->start();
+  getNewGameState();
+}
+
+void GameWidget::getNewGameState() {
+  game->humanMove = false;
+  player.index = game->getToMove();
+  player.player = &game->players[player.index];
+  LOG("\n" << printLudoColor(player.player->color) << "'s turn");
+  player.roll = game->roll();
+  hud->update(player.roll);
+  player.possibleMoves = player.player->getPossibleMoves(
+      game->state.positions, player.offset, player.roll, map.getMapConfig());
+  bool canMove = false;
+  for (bool movePossible : player.possibleMoves) {
+    if (movePossible) {
+      canMove = true;
+      break;
+    }
+  }
+  if (!canMove) {
+    player.choice = 255;
+    setNewGameState();
+  }
+  if (player.player->human) {
+    game->humanMove = true;
+    return;
+  }
+  player.choice = game->findMove(player.index, player.roll);
+  setNewGameState();
+}
+
+void GameWidget::setNewGameState() {
+  const quint8 figure =
+      game->applyMove(player.index, player.choice, player.roll);
+
+  if (figure == 255) {
+    QMetaObject::invokeMethod(this, &GameWidget::getNewGameState,
+                              Qt::QueuedConnection);
+    return;
+  }
+
+  LOG("Updating coords of figure " << (int)figure << " of player "
+                                   << (int)player.index << " with "
+                                   << (int)game->getPosition(figure));
+  openglwidget->updatePosition(figure, game->getPosition(figure));
+  QMetaObject::invokeMethod(this, &GameWidget::getNewGameState,
+                            Qt::QueuedConnection);
+}
+
 void GameWidget::keyPressEvent(QKeyEvent *event) {
   if (event->key() == Qt::Key_Escape) {
     togglePause();
@@ -63,82 +115,41 @@ void GameWidget::keyPressEvent(QKeyEvent *event) {
     return;
   }
 
-  LudoColor color = game->state->toMove;
-  Player *player = game->players[game->getPlayer(color)];
-  uint8_t offset = game->getPosition(color, 0);
-  std::vector<bool> possibleMoves = player->getPossibleMoves(
-      game->state->positions + offset, lastDieRoll, game->config);
-
-  bool canMove = false;
-  for (bool movePossible : possibleMoves) {
-    if (movePossible) {
-      canMove = true;
-    }
-  }
-
-  if (!canMove) {
-    game->applyMove(255, lastDieRoll);
-    updateGameState();
-    return;
-  }
+  player.choice = 255;
   switch (event->key()) {
   case Qt::Key_1:
-    if (!possibleMoves[0]) {
+    if (!player.possibleMoves[0]) {
       break;
     }
-    game->applyMove(offset + 0, lastDieRoll);
-    openglwidget->updatePosition(game->state->toMove, offset + 0);
-    updateGameState();
+    player.choice = 0;
     break;
   case Qt::Key_2:
-    if (!possibleMoves[1]) {
+    if (!player.possibleMoves[1]) {
       break;
     }
-    game->applyMove(offset + 1, lastDieRoll);
-    openglwidget->updatePosition(game->state->toMove, offset + 1);
-    updateGameState();
+    player.choice = 1;
     break;
   case Qt::Key_3:
-    if (!possibleMoves[2]) {
+    if (!player.possibleMoves[2]) {
       break;
     }
-    game->applyMove(offset + 2, lastDieRoll);
-    openglwidget->updatePosition(game->state->toMove, offset + 2);
-    updateGameState();
+    player.choice = 2;
     break;
   case Qt::Key_4:
-    if (!possibleMoves[3]) {
+    if (!player.possibleMoves[3]) {
       break;
     }
-    game->applyMove(offset + 3, lastDieRoll);
-    openglwidget->updatePosition(game->state->toMove, offset + 3);
-    updateGameState();
+    player.choice = 3;
     break;
   }
-}
 
-void GameWidget::startGame() {
-  game->start();
-  updateGameState();
-}
-
-void GameWidget::updateGameState() {
-  game->humanMove = false;
-  std::cout << printLudoColor(game->state->toMove) << "'s turn\n";
-  Player *player = game->players[game->getPlayer(game->state->toMove)];
-  uint32_t seed = std::time(0);
-  lastDieRoll = game->roll(seed);
-  if (player->human) {
-    game->humanMove = true;
+  if (player.choice == 255) {
+    // This should never occur
+    LOG("Not a possible move");
     return;
   }
 
-  uint8_t *positions = game->state->positions;
-  uint8_t pieceToMove = game->findMove(player, lastDieRoll);
-  game->applyMove(pieceToMove, lastDieRoll);
-
-  openglwidget->updatePosition(game->state->toMove, pieceToMove);
-  updateGameState();
+  LOG("Player played " << (int)player.choice);
+  setNewGameState();
 }
-
 } // namespace QtLudo

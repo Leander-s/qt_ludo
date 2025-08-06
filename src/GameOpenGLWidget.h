@@ -1,35 +1,38 @@
 #pragma once
-#include "ModelUtil.h"
-#include "GLGameObject.h"
-#include "State.h"
+
+// Mine
+#include <GLGameObject.h>
+#include <Map.h>
+#include <State.h>
+
+// Qt
 #include <QImage>
 #include <QKeyEvent>
-#include <QOpenGLFunctions>
-#include <QOpenGLFunctions_3_3_Core>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
-#include <QOpenGLWidget>
 #include <QWidget>
+
+// QOpenGL
+#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_3_2_Core>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLWidget>
 
 namespace QtLudo {
 QOpenGLTexture *loadTexture(const char *path);
 
 class GameOpenGLWidget : public QOpenGLWidget,
-                         protected QOpenGLFunctions_3_3_Core {
+                         protected QOpenGLFunctions_3_2_Core {
   Q_OBJECT
 
 public:
   explicit GameOpenGLWidget(QWidget *parent = nullptr);
   ~GameOpenGLWidget();
-  void initializeGame(MapConfig _config, GameState *state);
-  void updateAllPositions();
-  void updatePosition(LudoColor color, int index);
+  void initializeGame(Map *_map);
+  void updatePosition(const quint32 figure, const quint32 position);
 
 protected:
   void initializeGL() override;
-  void resizeGL(int w, int h) override;
+  void resizeGL(const int w, const int h) override;
   void paintGL() override;
-  // void keyPressEvent(QKeyEvent *event) override;
   void initializeGameObject(GameObject *gameObject);
 
   /*
@@ -38,17 +41,15 @@ signals:
   */
 
 private:
-  QVector2D positionToCoords(LudoColor color, uint8_t position,
-                             float tileSize = 1.0f);
   std::vector<GameObject *> createObjects();
-  GameObject *createBoard(float tileSize);
-  GameObject *createFigure(float tileSize, LudoColor color);
-
+  GameObject *createBoard();
+  GameObject *createFigure(LudoColor color);
   QOpenGLTexture *loadTexture(const char *path);
+
   QOpenGLShaderProgram *shaderProgram;
   std::vector<Model> models;
   std::vector<GameObject *> gameObjects;
-  GameState *gameState;
+  Map *map;
   MapConfig config;
 };
 } // namespace QtLudo

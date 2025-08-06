@@ -1,13 +1,25 @@
 #pragma once
-#include "GameOpenGLWidget.h"
-#include "Game.h"
-#include "PauseMenuWidget.h"
-#include <QWidget>
+// Mine
+#include <Game.h>
+#include <HUDWidget.h>
+#include <PauseMenuWidget.h>
+
+// Qt
 #include <QStackedLayout>
 #include <QSizePolicy>
 #include <QTimer>
+#include <QWidget>
 
 namespace QtLudo {
+struct currentPlayer {
+  quint8 index;
+  quint8 offset;
+  Player *player;
+  QVector<bool> possibleMoves;
+  quint8 roll;
+  quint8 choice;
+};
+
 class GameWidget : public QWidget {
   Q_OBJECT
 
@@ -17,19 +29,22 @@ public:
 
 private:
   GameOpenGLWidget *openglwidget;
-  PauseMenuWidget *pausemenu;
-  bool paused;
+  std::shared_ptr<PauseMenuWidget> pausemenu;
+  std::unique_ptr<HUDWidget> hud;
   Ludo *game;
-  MapConfig config;
-  uint8_t lastDieRoll;
+  Map map;
+  bool paused;
+  currentPlayer player;
 
   void keyPressEvent(QKeyEvent *event) override;
-  void updateGameState();
+  void getNewGameState();
+  void setNewGameState();
 
 signals:
   void quitToMenu();
 
 private slots:
+  // void humanCommitted();
   void togglePause();
 };
 } // namespace QtLudo

@@ -1,35 +1,45 @@
 #include "Map.h"
 
 namespace QtLudo {
-Map::Map(QString path) {
+Map::Map() {
+    initialized = false;
+}
+
+void Map::initializeMap(const QString path) {
   if (path == "default") {
-      config.lengthOfPath = 63;
-      config.numberOfPlayers = 4;
-      config.numberOfPiecesPerPlayer = 4;
-      config.numberOfPieces = 16;
+    config.lengthOfPath = 63;
+    config.numberOfPlayers = 4;
+    config.numberOfPiecesPerPlayer = 4;
+    config.numberOfPieces = 16;
 
-      posCoordMap = positionMappings;
-      paths = genDefaultPaths();
-      if(!saveMap(QString("defaultMap.map"))){
-          std::cout << "Saving map failed\n";
-      }
+    posCoordMap = positionMappings;
+    paths = genDefaultPaths();
+    if (!saveMap(QString("defaultMap.map"))) {
+      std::cout << "Saving map failed\n";
+    }
+  }else{
+      loadMap(path);
   }
+  initialized = true;
 }
 
-QVector2D Map::getCoords(quint8 figure, quint8 index){
-    return posCoordMap[getTotalIndex(figure, index)];
+const QVector2D Map::getCoords(const quint8 figure, const quint8 position) const {
+  return posCoordMap[getTotalIndex(figure, position)];
 }
 
-quint8 Map::getTotalIndex(quint8 figure, quint8 index){
-    return paths[figure][index];
+const quint8 Map::getTotalIndex(const quint8 figure, const quint8 position) const {
+  return paths[figure][position];
 }
 
-bool Map::saveMap(QString path) {
+const MapConfig Map::getMapConfig() const { return config; }
+
+bool Map::saveMap(const QString path) {
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly)) {
     return false;
   }
 
+  file.startTransaction();
   QDataStream out(&file);
   out.setVersion(QDataStream::Qt_6_5);
 
@@ -46,7 +56,7 @@ bool Map::saveMap(QString path) {
   return true;
 }
 
-bool Map::loadMap(QString path) {
+bool Map::loadMap(const QString path) {
   QFile file(path);
   if (!file.open(QIODevice::ReadOnly)) {
     return false;

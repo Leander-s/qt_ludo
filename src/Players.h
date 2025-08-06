@@ -1,6 +1,8 @@
 #pragma once
-#include "State.h"
-#include <QObject>
+
+// Mine
+#include <Map.h>
+#include <State.h>
 
 namespace QtLudo {
 class Controller : public QObject {
@@ -8,12 +10,57 @@ class Controller : public QObject {
 public slots:
 };
 
-enum PlayerType { human, AI };
+enum Strategy { human, oneManArmy, youNeverWalkAlone, pacifist, killer };
+
+struct aiParameters {
+  const quint8 preferredFigurePosition;
+  const int figurePositionBias;
+  const int aggressionBias;
+  const int defenseBias;
+  const int willToLive;
+};
+
+const aiParameters oneManArmyPreset{
+    .preferredFigurePosition = 0,
+    .figurePositionBias = 100,
+    .aggressionBias = 50,
+    .defenseBias = 0,
+    .willToLive = 100,
+};
+
+const aiParameters youNeverWalkAlonePreset{
+    .preferredFigurePosition = 255,
+    .figurePositionBias = 100,
+    .aggressionBias = 50,
+    .defenseBias = 100,
+    .willToLive = 100,
+};
+
+const aiParameters pacifistPreset{
+    .preferredFigurePosition = 0,
+    .figurePositionBias = 10,
+    .aggressionBias = -100,
+    .defenseBias = 100,
+    .willToLive = 100,
+};
+
+const aiParameters killerPreset{
+    .preferredFigurePosition = 255,
+    .figurePositionBias = 10,
+    .aggressionBias = 100,
+    .defenseBias = 0,
+    .willToLive = 100,
+};
+
 class Player {
 public:
-  Player(LudoColor _color);
-  std::vector<bool> getPossibleMoves(uint8_t *positions, uint8_t roll,
-                                     MapConfig config);
+  Player(const LudoColor _color);
+  const QVector<bool> getPossibleMoves(const quint8 *positions,
+                                       const quint8 playerOffset,
+                                       const quint8 roll,
+                                       const MapConfig &config) const;
+  void sortPositions(const quint8 *playerPositions, quint8 *sortedPositions,
+                     const MapConfig &config) const;
   bool moving;
   bool human;
   LudoColor color;
@@ -21,43 +68,19 @@ public:
 
 class HumanPlayer : public Player {
 public:
-  HumanPlayer(LudoColor _color);
+  HumanPlayer(const LudoColor _color);
 };
 
 class AIPlayer : public Player {
 public:
-  AIPlayer(LudoColor _color);
-  virtual uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                         uint8_t playerOffset) {
-    return 0;
-  }
-};
+  AIPlayer(const LudoColor _color, const aiParameters &_params);
+  const quint8 decide(const quint8 *positions, const quint8 roll,
+                      const MapConfig &config, const quint8 playerOffset) const;
+  const int calculateScore(const quint8 *positions, const quint8 playerPosition,
+                           const quint8 sortedPosition, const quint8 roll,
+                           const MapConfig &config,
+                           const quint8 playerOffset) const;
 
-class OneManArmy : public AIPlayer {
-public:
-  OneManArmy(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
-};
-
-class YouNeverWalkAlone : public AIPlayer {
-public:
-  YouNeverWalkAlone(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
-};
-
-class Pacifist : public AIPlayer {
-public:
-  Pacifist(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
-};
-
-class Killer : public AIPlayer {
-public:
-  Killer(LudoColor _color) : AIPlayer(_color) {};
-  uint8_t decide(uint8_t *positions, uint8_t roll, MapConfig config,
-                 uint8_t playerOffset) override;
+  const aiParameters params;
 };
 } // namespace QtLudo

@@ -91,7 +91,6 @@ void GameOpenGLWidget::initializeGL() {
   shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment,
                                          "./shaders/frag.glsl");
   if (!shaderProgram->link()) {
-    std::cout << "Linking shader program failed" << std::endl;
   }
   // :)
   for (GameObject *gameObject : gameObjects) {
@@ -100,9 +99,9 @@ void GameOpenGLWidget::initializeGL() {
   }
 }
 
-void GameOpenGLWidget::initializeGame(MapConfig _config, GameState *_state) {
-  gameState = _state;
-  config = _config;
+void GameOpenGLWidget::initializeGame(Map *_map) {
+  map = _map;
+  config = map->getMapConfig();
   gameObjects = createObjects();
 }
 
@@ -142,30 +141,14 @@ void GameOpenGLWidget::paintGL() {
   shaderProgram->release();
 }
 
-void GameOpenGLWidget::updatePosition(const quint8 totalFigureIndex) {
-  quint8 position = gameState->positions[totalFigureIndex];
-  QVector2D coords = map->getCoords(totalFigureIndex, position);
-  GameObject *object = gameObjects[totalFigureIndex];
+void GameOpenGLWidget::updatePosition(const quint32 figure, const quint32 position) {
+  QVector2D coords = map->getCoords(figure, position);
+  GameObject *object = gameObjects[figure];
   object->setPosition(QVector3D(coords.x(), 0.0f, coords.y()));
-}
-
-void GameOpenGLWidget::updateAllPositions() {
-  for (int playerIndex = 0; playerIndex < config.numberOfPlayers;
-       playerIndex++) {
-    for (int figureIndex = 0; figureIndex < config.numberOfPiecesPerPlayer;
-         figureIndex++) {
-
-      QVector2D figureCoords = map->getCoords(figureIndex, playerIndex);
-      GameObject *figureObject = gameObjects[playerIndex];
-      figureObject->setPosition(
-          QVector3D(figureCoords.x(), 0.0f, figureCoords.y()));
-    }
-  }
 }
 
 std::vector<GameObject *> GameOpenGLWidget::createObjects() {
   std::vector<GameObject *> objects(config.numberOfPieces, nullptr);
-  const float defaultTileSize = 1.0f;
   GameObject *board = createBoard();
   // For now we just give all the colors to the players in order
   LudoColor color = LudoColor::red;
@@ -173,13 +156,15 @@ std::vector<GameObject *> GameOpenGLWidget::createObjects() {
        playerIndex++) {
     for (int figureIndex = 0; figureIndex < config.numberOfPiecesPerPlayer;
          figureIndex++) {
+      const quint32 totalFigureIndex =
+          playerIndex * config.numberOfPiecesPerPlayer + figureIndex;
       GameObject *figure = createFigure(color);
 
-      QVector2D figureCoords = map->getCoords(figureIndex, playerIndex);
+      QVector2D figureCoords = map->getCoords(totalFigureIndex, 0);
 
       // All of the figures start at the calculated start position and y = 0
       figure->translate(QVector3D(figureCoords.x(), 0.0f, figureCoords.y()));
-      objects.push_back(figure);
+      objects[totalFigureIndex] = figure;
     }
     color++;
   }

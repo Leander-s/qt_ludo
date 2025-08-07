@@ -91,18 +91,21 @@ void GameOpenGLWidget::initializeGL() {
   shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment,
                                          "./shaders/frag.glsl");
   if (!shaderProgram->link()) {
+      LOG("Shader program not linked");
   }
   // :)
+}
+
+void GameOpenGLWidget::initializeGame(std::shared_ptr<Map> _map) {
+  map = _map;
+  config = map->getMapConfig();
+  gameObjects = createObjects();
+  makeCurrent();
   for (GameObject *gameObject : gameObjects) {
     initializeGameObject(gameObject);
     gameObject->texture = loadTexture(gameObject->texturePath.toUtf8().data());
   }
-}
-
-void GameOpenGLWidget::initializeGame(Map *_map) {
-  map = _map;
-  config = map->getMapConfig();
-  gameObjects = createObjects();
+  doneCurrent();
 }
 
 void GameOpenGLWidget::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -148,7 +151,7 @@ void GameOpenGLWidget::updatePosition(const quint32 figure, const quint32 positi
 }
 
 std::vector<GameObject *> GameOpenGLWidget::createObjects() {
-  std::vector<GameObject *> objects(config.numberOfPieces, nullptr);
+  std::vector<GameObject *> objects;
   GameObject *board = createBoard();
   // For now we just give all the colors to the players in order
   LudoColor color = LudoColor::red;
@@ -164,7 +167,7 @@ std::vector<GameObject *> GameOpenGLWidget::createObjects() {
 
       // All of the figures start at the calculated start position and y = 0
       figure->translate(QVector3D(figureCoords.x(), 0.0f, figureCoords.y()));
-      objects[totalFigureIndex] = figure;
+      objects.push_back(figure);
     }
     color++;
   }

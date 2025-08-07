@@ -26,11 +26,12 @@ public:
   const MapConfig getMapConfig() const;
 
 private:
+  bool saveMap(const QString path);
+  bool loadMap(const QString path);
+
   QVector<QVector2D> posCoordMap;
   QVector<QVector<quint8>> paths;
   MapConfig config;
   bool initialized;
-  bool saveMap(const QString path);
-  bool loadMap(const QString path);
 };
 } // namespace QtLudo

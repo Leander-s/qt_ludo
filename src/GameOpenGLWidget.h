@@ -26,7 +26,7 @@ class GameOpenGLWidget : public QOpenGLWidget,
 public:
   explicit GameOpenGLWidget(QWidget *parent = nullptr);
   ~GameOpenGLWidget();
-  void initializeGame(Map *_map);
+  void initializeGame(std::shared_ptr<Map> _map);
   void updatePosition(const quint32 figure, const quint32 position);
 
 protected:
@@ -49,7 +49,7 @@ private:
   QOpenGLShaderProgram *shaderProgram;
   std::vector<Model> models;
   std::vector<GameObject *> gameObjects;
-  Map *map;
+  std::shared_ptr<Map> map;
   MapConfig config;
 };
 } // namespace QtLudo

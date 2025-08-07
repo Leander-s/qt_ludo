@@ -1,5 +1,3 @@
-#!/bin/python
-
 import os
 import subprocess
 
@@ -21,13 +19,17 @@ def get_test_files(dir: str) -> list[str]:
 def run_tests(test_files: list[str]):
     for file in test_files:
         print(f"Running tests for {file.split("/")[-1].split("_")[0]}")
-        result = subprocess.run([file], check=True)
+        subprocess.run([file], check=True)
         print()
 
 
-def main():
-    test_files = get_test_files("build")
+def run_all_tests(build_dir):
+    test_files = get_test_files(build_dir)
     run_tests(test_files)
+
+
+def main():
+    run_all_tests("../build")
 
 
 if __name__ == '__main__':

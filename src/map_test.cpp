@@ -5,9 +5,7 @@
 using namespace QtLudo;
 using namespace std;
 int main() {
-        Map testMap;
-        testMap.initializeMap();
-        Ludo testGame(&testMap);
+        Ludo testGame;
         const quint8 pathLength = testGame.config.lengthOfPath;
         const quint8 lastPos = pathLength - 1;
         const quint8 almostEnd = pathLength - 2;

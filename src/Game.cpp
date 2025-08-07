@@ -1,13 +1,17 @@
 #include <Game.h>
 
 namespace QtLudo {
-Ludo::Ludo(const Map *_map) : map(_map), config(_map->getMapConfig()) {
+Ludo::Ludo() {
         players = {
             HumanPlayer(LudoColor::red),
             AIPlayer(LudoColor::blue, oneManArmyPreset),
             AIPlayer(LudoColor::yellow, killerPreset),
             AIPlayer(LudoColor::green, youNeverWalkAlonePreset),
         };
+        rng = QRandomGenerator::securelySeeded();
+        map = std::make_shared<Map>();
+        map->initializeMap();
+        config = map->getMapConfig();
         state.positions = new quint8[config.numberOfPieces];
         memset((void *)state.positions, 0, config.numberOfPieces);
 }
@@ -17,7 +21,7 @@ Ludo::~Ludo() { delete state.positions; }
 void Ludo::start() {
         state.toMoveIndex = startingRoll();
         humanMove = players[state.toMoveIndex].human;
-        rng = QRandomGenerator::securelySeeded();
+        LOG("Game started");
 }
 
 const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
@@ -61,8 +65,9 @@ const quint8 Ludo::applyMove(const quint8 playerIndex,
         // Are we beating another piece
         for (int otherFigure = 0; otherFigure < config.numberOfPieces;
              otherFigure++) {
-                const bool ownPiece =
-                    otherFigure - offset < config.numberOfPiecesPerPlayer;
+                const bool ownPiece = mathMod<quint8>((otherFigure - offset),
+                                                      config.numberOfPieces) <
+                                      config.numberOfPiecesPerPlayer;
                 if (ownPiece) {
                         continue;
                 }

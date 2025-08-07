@@ -14,7 +14,7 @@ LudoWindow::LudoWindow(QWidget *parent) : QMainWindow(parent) {
   widgetStack->setCurrentWidget(menu);
 
   connect(menu, &Menu::startGame, this, &LudoWindow::startGame);
-  connect(gameWidget, &GameWidget::quitToMenu, this, &LudoWindow::returnToMenu);
+  connect(gameWidget, &GameWidget::quitToMenuSignal, this, &LudoWindow::returnToMenu);
 };
 
 void LudoWindow::startGame() { 

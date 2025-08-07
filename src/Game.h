@@ -7,6 +7,7 @@
 // Mine
 #include <GLGameObject.h>
 #include <Players.h>
+#include <util.h>
 
 // Qt
 #include <QRandomGenerator>
@@ -16,7 +17,7 @@ const quint8 noMovesPossibleCode = 255;
 
 class Ludo {
 public:
-  Ludo(const Map *_map);
+  Ludo();
   ~Ludo();
   void start();
   const quint8 findMove(const quint8 playerIndex, const quint8 dieRoll);
@@ -30,8 +31,8 @@ public:
   const quint8 getPosition(const quint8 figure) const;
   const quint8 getToMove() const;
 
-  const MapConfig config;
-  const Map *map;
+  MapConfig config;
+  std::shared_ptr<Map> map;
   std::vector<Player> players;
   bool humanMove;
   QRandomGenerator rng;

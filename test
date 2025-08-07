@@ -1,0 +1,9 @@
+#!/bin/python
+
+from scripts.makeGame import make_game
+from scripts.runTests import run_all_tests
+import os
+
+if __name__ == '__main__':
+    make_game(os.getcwd(), "build")
+    run_all_tests("build")

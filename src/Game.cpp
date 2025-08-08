@@ -34,16 +34,19 @@ const quint8 Ludo::findMove(const quint8 playerIndex, const quint8 dieRoll) {
         return pieceToMove;
 }
 
-const quint8 Ludo::applyMove(const quint8 playerIndex,
-                             const quint8 playerFigure, const quint8 dieRoll) {
+const std::array<quint8, 2> Ludo::applyMove(const quint8 playerIndex,
+                                            const quint8 playerFigure,
+                                            const quint8 dieRoll) {
         state.toMoveIndex = (state.toMoveIndex + 1) % config.numberOfPlayers;
         const bool noMovesPossible = playerFigure == noMovesPossibleCode;
         if (noMovesPossible) {
-                return noMovesPossibleCode;
+                return std::array<quint8, 2>{noMovesPossibleCode,
+                                             noMovesPossibleCode};
         }
         const bool invalidRoll = dieRoll > 6 || dieRoll == 0;
         if (invalidRoll) {
-                return noMovesPossibleCode;
+                return std::array<quint8, 2>{noMovesPossibleCode,
+                                             noMovesPossibleCode};
         }
         const quint8 offset = getFigure(playerIndex, 0);
         const quint8 figure = getFigure(playerIndex, playerFigure);
@@ -51,17 +54,20 @@ const quint8 Ludo::applyMove(const quint8 playerIndex,
         const bool home = state.positions[figure] == 0;
         if (home) {
                 if (!sixRolled) {
-                        return noMovesPossibleCode;
+                        return std::array<quint8, 2>{noMovesPossibleCode,
+                                                     noMovesPossibleCode};
                 }
                 state.positions[figure] = 1;
         } else {
                 const bool tooFar =
                     state.positions[figure] + dieRoll >= config.lengthOfPath;
                 if (tooFar) {
-                        return noMovesPossibleCode;
+                        return std::array<quint8, 2>{noMovesPossibleCode,
+                                                     noMovesPossibleCode};
                 }
                 state.positions[figure] += dieRoll;
         }
+        std::array<quint8, 2> result = {figure, noMovesPossibleCode};
         // Are we beating another piece
         for (int otherFigure = 0; otherFigure < config.numberOfPieces;
              otherFigure++) {
@@ -81,10 +87,11 @@ const quint8 Ludo::applyMove(const quint8 playerIndex,
 
                 if (ownTotalPosition == otherTotalPosition) {
                         state.positions[otherFigure] = 0;
+                        result[1] = otherFigure;
                 }
         }
         state.toMoveIndex = (state.toMoveIndex + 1) % config.numberOfPlayers;
-        return figure;
+        return result;
 }
 
 const quint8 Ludo::getPosition(const quint8 figure) const {

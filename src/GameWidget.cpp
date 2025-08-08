@@ -100,19 +100,20 @@ void GameWidget::setNewGameState() {
         if (paused)
                 return;
         delay(1);
-        const quint8 figure =
+        const std::array<quint8, 2> figures =
             game->applyMove(player.index, player.choice, player.roll);
 
-        if (figure == 255) {
+        if (figures[0] == 255) {
                 QMetaObject::invokeMethod(this, &GameWidget::getNewGameState,
                                           Qt::QueuedConnection);
                 return;
         }
 
-        LOG("Updating coords of figure " << (int)figure << " of player "
-                                         << (int)player.index << " with "
-                                         << (int)game->getPosition(figure));
-        openglwidget->updatePosition(figure, game->getPosition(figure));
+        for (const quint8 figure : figures) {
+                if (figure == 255)
+                        continue;
+                openglwidget->updatePosition(figure, game->getPosition(figure));
+        }
         QMetaObject::invokeMethod(this, &GameWidget::getNewGameState,
                                   Qt::QueuedConnection);
 }

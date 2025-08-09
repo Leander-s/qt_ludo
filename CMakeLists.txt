@@ -16,9 +16,9 @@ set(QT_LIBS
 )
 find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
+file(GLOB UI "${CMAKE_CURRENT_SOURCE_DIR}/src/*.ui")
 file(GLOB SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB HPP "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
-file(GLOB UI "${CMAKE_CURRENT_SOURCE_DIR}/src/*.ui")
 file(GLOB TEST_UTIL "${CMAKE_CURRENT_SOURCE_DIR}/test_util/*.cpp")
 file(GLOB TEST_UTIL_HPP "${CMAKE_CURRENT_SOURCE_DIR}/test_util/*.h")
 file(GLOB TEST "${CMAKE_CURRENT_SOURCE_DIR}/src/*_test.cpp")

@@ -1,6 +1,7 @@
 #pragma once
 
 // Mine
+#include <Camera.h>
 #include <GLGameObject.h>
 #include <Map.h>
 #include <State.h>
@@ -21,35 +22,36 @@ QOpenGLTexture *loadTexture(const char *path);
 
 class GameOpenGLWidget : public QOpenGLWidget,
                          protected QOpenGLFunctions_3_2_Core {
-  Q_OBJECT
+        Q_OBJECT
 
-public:
-  explicit GameOpenGLWidget(QWidget *parent = nullptr);
-  ~GameOpenGLWidget();
-  void initializeGame(std::shared_ptr<Map> _map);
-  void updatePosition(const quint32 figure, const quint32 position);
+      public:
+        explicit GameOpenGLWidget(QWidget *parent = nullptr);
+        ~GameOpenGLWidget();
+        void initializeGame(std::shared_ptr<Map> _map, Camera *_camera);
+        void updatePosition(const quint32 figure, const quint32 position);
 
-protected:
-  void initializeGL() override;
-  void resizeGL(const int w, const int h) override;
-  void paintGL() override;
-  void initializeGameObject(GameObject *gameObject);
+      protected:
+        void initializeGL() override;
+        void resizeGL(const int w, const int h) override;
+        void paintGL() override;
+        void initializeGameObject(GameObject *gameObject);
 
-  /*
-signals:
-  void pauseGame();
-  */
+        /*
+      signals:
+        void pauseGame();
+        */
 
-private:
-  std::vector<GameObject *> createObjects();
-  GameObject *createBoard();
-  GameObject *createFigure(LudoColor color);
-  QOpenGLTexture *loadTexture(const char *path);
+      private:
+        std::vector<GameObject *> createObjects();
+        GameObject *createBoard();
+        GameObject *createFigure(LudoColor color);
+        QOpenGLTexture *loadTexture(const char *path);
 
-  QOpenGLShaderProgram *shaderProgram;
-  std::vector<Model> models;
-  std::vector<GameObject *> gameObjects;
-  std::shared_ptr<Map> map;
-  MapConfig config;
+        QOpenGLShaderProgram *shaderProgram;
+        std::vector<Model> models;
+        std::vector<GameObject *> gameObjects;
+        std::shared_ptr<Map> map;
+        MapConfig config;
+        Camera *camera;
 };
 } // namespace QtLudo

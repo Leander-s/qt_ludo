@@ -8,16 +8,32 @@
             </property>
             <item>
                 <widget class="QLabel" name="DieIndicator">
+                    <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed" />
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>150</width>
+                            <height>50</height>
+                        </size>
+                    </property>
                     <property name="text">
-                        <string>Rolled</string>
+                        <string>Rolling</string>
+                    </property>
+                    <property name="styleSheet">
+                        <string notr="true">
+                            color: white;
+                            background-color: black;
+                            padding: 4px;
+                        </string>
                     </property>
                     <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignHCenter</set>
                     </property>
                     <property name="font">
                         <font>
                             <family>monospace</family>
-                            <pointsize>50</pointsize>
+                            <pointsize>20</pointsize>
                             <bold>true</bold>
                         </font>
                     </property>
@@ -25,6 +41,6 @@
             </item>
         </layout>
     </widget>
-    <resources/>
-    <connections/>
+    <resources />
+    <connections />
 </ui>

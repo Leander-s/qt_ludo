@@ -1,4 +1,5 @@
 #include <GameWidget.h>
+#include <qnamespace.h>
 
 namespace QtLudo {
 GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
@@ -13,12 +14,15 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent) {
         pausemenu->setContentsMargins(0, 0, 0, 0);
         paused = false;
 
+        mouseHeld = false;
+
         layout->addWidget(openglwidget);
         layout->addWidget(pausemenu.get());
         layout->addWidget(hud.get());
 
         pausemenu->raise();
         pausemenu->hide();
+        hud->raise();
         hud->show();
 
         /*
@@ -57,7 +61,7 @@ void GameWidget::togglePause() {
 
 void GameWidget::startGame() {
         game = new Ludo();
-        openglwidget->initializeGame(game->map);
+        openglwidget->initializeGame(game->map, &camera);
         game->start();
         getNewGameState();
 }
@@ -118,12 +122,48 @@ void GameWidget::setNewGameState() {
                                   Qt::QueuedConnection);
 }
 
+void GameWidget::mousePressEvent(QMouseEvent *event) {
+        if (event->button() == Qt::LeftButton) {
+                mouseHeld = true;
+                lastMousePos = (QVector2D)event->position();
+        }
+}
+
+void GameWidget::mouseReleaseEvent(QMouseEvent *event) {
+        if (event->button() == Qt::LeftButton) {
+                mouseHeld = false;
+        }
+}
+
+void GameWidget::mouseMoveEvent(QMouseEvent *event) {
+        if (!mouseHeld) {
+                return;
+        }
+
+        QVector2D mousePos = (QVector2D)event->position();
+        if (!lastMousePos) {
+                lastMousePos = mousePos;
+                return;
+        }
+        if(mousePos == lastMousePos.value()){
+            return;
+        }
+        const QVector2D movement = mousePos - lastMousePos.value();
+        const QVector2D rotAxis2D =
+            QVector2D(-movement.y(), -movement.x()).normalized();
+        const QVector3D cameraRight = camera.getRightVec();
+        const QVector3D cameraUp = camera.getUpVec();
+        QVector3D rotAxis =
+            cameraRight * rotAxis2D.x() + cameraUp * rotAxis2D.y();
+        camera.rotateCamera(rotAxis, movement.length()/2);
+        lastMousePos = mousePos;
+}
+
 void GameWidget::keyPressEvent(QKeyEvent *event) {
         if (event->key() == Qt::Key_Escape) {
                 togglePause();
         }
 
-        // Not a very elegant way to do this...
         if (!game->humanMove) {
                 return;
         }

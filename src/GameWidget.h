@@ -10,6 +10,7 @@
 #include <QStackedLayout>
 #include <QTimer>
 #include <QWidget>
+#include <qevent.h>
 
 namespace QtLudo {
 struct currentPlayer {
@@ -35,10 +36,17 @@ class GameWidget : public QWidget {
         std::unique_ptr<HUDWidget> hud;
         Ludo *game;
         Map map;
+        Camera camera;
         bool paused;
         currentPlayer player;
 
+        bool mouseHeld;
+        std::optional<QVector2D> lastMousePos;
+
         void keyPressEvent(QKeyEvent *event) override;
+        void mousePressEvent(QMouseEvent *event) override;
+        void mouseReleaseEvent(QMouseEvent *event) override;
+        void mouseMoveEvent(QMouseEvent *event) override;
         void getNewGameState();
         void setNewGameState();
 
